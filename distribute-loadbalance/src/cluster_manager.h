@@ -15,7 +15,7 @@ typedef struct clusterManager
   scheduleMeta *meta;
   int nodeSize;
 }clusterManager;
-void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path);
+void clusterManagerInit(clusterManager *cm,const char *addr,const char *path);
 void clusterManagerRun(clusterManager *cm);
 void clusterManagerAddNode(clusterManager *cm,const char *srvAddr);
 void clusterManagerDelNode(clusterManager *cm,const char *srvAddr);

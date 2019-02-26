@@ -80,7 +80,7 @@ char *confSetString(struct conf *cf, struct command *cmd, void *conf);
 char *confSetNum(struct conf *cf, struct command *cmd, void *conf);
 char *confSetBool(struct conf *cf, struct command *cmd, void *conf);
 
-struct conf *confCreate(char *filename,bool is_multilevel);
+struct conf *confCreate(const char *filename,bool is_multilevel);
 void confDump(struct conf *cf);
 void confDestroy(struct conf *cf);
 

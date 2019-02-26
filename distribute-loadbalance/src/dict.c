@@ -18,7 +18,7 @@ dictEntry *dictEntryCreate(const char *key, void *value, uint64_t keyCode)
   dictEntry *entry = (dictEntry *)calloc(1, sizeof(*entry));
   assert(entry != NULL);
   entry->value = value;
-  stringInitWitdData(&entry->key,key);
+  stringInitWithData(&entry->key,key);
   entry->keyCode = keyCode;
   entry->next = NULL;
   return entry;
@@ -116,7 +116,7 @@ void *dictFind(dict *dt, const char *key)
 {
   if (dt == NULL || key == NULL)
   {
-    return nilPointerErr;
+    return NULL;
   }
   char *strKey = (char *)key;
   size_t strLen = strlen(strKey);
@@ -137,4 +137,7 @@ void *dictFind(dict *dt, const char *key)
     cur = next;
   }
   return NULL;
+}
+void dictDestroy(dict *dt){
+  
 }

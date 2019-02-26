@@ -4,7 +4,7 @@ server1:
   threads: 2
   backlog: 1024
   timeout: 100
-  tag: "test1"
+  tags: "test1"
   liveport: 9091
 server2:
   addr: 127.0.0.1
@@ -12,5 +12,13 @@ server2:
   threads: 2
   backlog: 1024
   timeout: 100
-  tag: "test2"
+  tags: "test2"
+  liveport: 9092
+server3:
+  addr: 127.0.0.1
+  port: 8083
+  threads: 2
+  backlog: 1024
+  timeout: 100
+  tags: "test3"
   liveport: 9092

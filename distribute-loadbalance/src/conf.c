@@ -493,7 +493,7 @@ static int confParse(struct conf *cf)
   return 0;
 }
 
-static struct conf *confOpen(char *filename)
+static struct conf *confOpen(const char *filename)
 {
   int status;
   struct conf *cf;
@@ -531,7 +531,7 @@ static struct conf *confOpen(char *filename)
     return NULL;
   }
 
-  cf->fname = filename;
+  cf->fname = strdup(filename);
   cf->fh = fh;
   cf->depth = 0;
   /* parser, event, and token are initialized later */
@@ -1031,7 +1031,7 @@ static int confPostValidate(struct conf *cf)
   return 0;
 }
 
-struct conf *confCreate(char *filename, bool is_multilevel)
+struct conf *confCreate(const char *filename, bool is_multilevel)
 {
   int status;
   struct conf *cf;

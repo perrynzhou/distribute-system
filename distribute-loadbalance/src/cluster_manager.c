@@ -13,7 +13,8 @@
 #include "util.h"
 #include "hashkit.h"
 #include <stdio.h>
-void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path)
+#include <stdint.h>
+void clusterManagerInit(clusterManager *cm, const char *addr, const char *path)
 {
   logInit(LOG_INFO_LEVEL, NULL);
   struct conf *f = confCreate(path, false);
@@ -27,41 +28,62 @@ void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path)
     confDestroy(f);
     return;
   }
-  cm->dt = dictCreate(0, &hash_fnv1a_64, &serviceNodeDestroy);
+  cm->dt = dictCreate(0, (hashCb)&hash_fnv1a_64, (destroyCb)&serviceNodeDestroy);
   cm->nodeSize = n;
-  uint64_t perToken = UINT32_MAX/n;
-  uint64_t restToken = UINT32_MAX%n;
-  uint64_t minToken=0,maxToken = 0;
-  scheduleMeta *meta=(scheduleMeta *)calloc(n,sizeof(*meta));
+  uint64_t u32Max = UINT32_MAX;
+  uint64_t perToken = u32Max / n;
+  uint64_t restToken = u32Max % n;
+  uint64_t minToken = 0, maxToken = 0;
+  scheduleMeta *meta = (scheduleMeta *)calloc(n, sizeof(*meta));
   cm->meta = meta;
   for (int i = 0; i < n; i++)
   {
     struct confPool *pool = (struct confPool *)arrayGet(&f->pool, i);
     const char *name = (const char *)pool->name.data;
-    const char *tags =(const char *)pool->tags.data;
+    const char *tags = (const char *)pool->tags.data;
     const char *serviceAddr = (const char *)pool->addr.data;
     int port = pool->port;
     int backlog = pool->backlog;
     int threads = pool->threads;
     int timeout = pool->timeout;
-    serviceNode *sn = serviceNodeCreate(name,tags,threads);
-    serviceNodeSetSocketInfo(sn,serviceAddr,port,timeout,backlog);
-    serviceNodeSetClusterAddr(sn,addr);
-    uint64_t nextToken = (i+1)*perToken;
-    maxToken = (i<n-1)?nextToken:(nextToken+restToken);
-    scheduleMetaInit(&meta[i],minToken,maxToken,sn);
-    minToken= maxToken+1;
-    dictAdd(cm->dt,&meta[i].nodeName,&meta);
-    logInfo(LOG_INFO_LEVEL,"server info:name=%s,tags=%s,mintoken=%d,maxtoken=%d",meta[i].nodeName->data,meta[i].nodeTags->data,mata[i].minToken,meta[i].maxToken);
+    serviceNode *sn = serviceNodeCreate(name, tags, threads);
+    serviceNodeSetSocketInfo(sn, serviceAddr, port, timeout, backlog);
+    serviceNodeSetClusterAddr(sn, addr);
+
+    if (i != (n - 1))
+    {
+      minToken = i * perToken;
+      maxToken = (i + 1) * perToken - 1;
+    }
+    else
+    {
+      minToken = maxToken+1;
+      maxToken = u32Max - 1;
+    }
+    scheduleMetaInit(&meta[i], minToken, maxToken, sn);
+    dictAdd(cm->dt, &meta[i].nodeName, &meta);
+    logInfo(LOG_INFO_LEVEL, "server info:name=%s,tags=%s,mintoken=%ld,maxtoken=%ld", (char *)meta[i].nodeName->data, (char *)meta[i].nodeTags->data, meta[i].minToken, meta[i].maxToken);
   }
   if (f != NULL)
   {
     confDestroy(f);
   }
 }
-void clusterManagerDeinit(clusterManager *cm){
-  if(cm->dt !=NULL) {
+void clusterManagerDeinit(clusterManager *cm)
+{
+  if (cm->dt != NULL)
+  {
     dictDestroy(cm->dt);
     cm->dt = NULL;
   }
 }
+#ifdef TEST
+int main()
+{
+  logInit(LOG_INFO_LEVEL, NULL);
+  clusterManager cm;
+  clusterManagerInit(&cm, "127.0.0.1:10091", "./conf.yaml");
+  clusterManagerDeinit(&cm);
+  return 0;
+}
+#endif

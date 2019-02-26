@@ -7,7 +7,7 @@
 
 #ifndef _DICT_H
 #define _DICT_H
-#include <cstring.h>
+#include "cstring.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
