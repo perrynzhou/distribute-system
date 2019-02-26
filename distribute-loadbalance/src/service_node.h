@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <functional>
 typedef int (*readCb)(int cfd);
 typedef int (*writeCb)(int cfd, void *ptr, size_t len);
 typedef int (*exceptionCb)(int cfd, const char *msg,size_t len);
@@ -20,7 +21,7 @@ enum serviceNodeErrorCode
 };
 typedef struct serviceNode
 {
-  char  *tag;
+  struct string  *tag;
   int uid;
   int threadCount;
   pthread_t *thds;

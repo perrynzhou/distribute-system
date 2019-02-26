@@ -11,6 +11,32 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+int StrToi(uint8_t *line, size_t n)
+{
+    int value;
+
+    if (n == 0)
+    {
+        return -1;
+    }
+
+    for (value = 0; n--; line++)
+    {
+        if (*line < '0' || *line > '9')
+        {
+            return -1;
+        }
+
+        value = value * 10 + (*line - '0');
+    }
+
+    if (value < 0)
+    {
+        return -1;
+    }
+
+    return value;
+}
 int initSocket(int port, int backlog)
 {
   int sock = socket(AF_INET, SOCK_STREAM, 0);
