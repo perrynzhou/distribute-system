@@ -29,6 +29,11 @@ void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path)
   }
   cm->dt = dictCreate(0, &hash_fnv1a_64, &serviceNodeDestroy);
   cm->nodeSize = n;
+  uint64_t perToken = UINT32_MAX/n;
+  uint64_t restToken = UINT32_MAX%n;
+  uint64_t minToken=0,maxToken = 0;
+  scheduleMeta *meta=(scheduleMeta *)calloc(n,sizeof(*meta));
+  cm->meta = meta;
   for (int i = 0; i < n; i++)
   {
     struct confPool *pool = (struct confPool *)arrayGet(&f->pool, i);
@@ -42,10 +47,21 @@ void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path)
     serviceNode *sn = serviceNodeCreate(name,tags,threads);
     serviceNodeSetSocketInfo(sn,serviceAddr,port,timeout,backlog);
     serviceNodeSetClusterAddr(sn,addr);
-    dictAdd(cm->dt,&sn->name,sn);
+    uint64_t nextToken = (i+1)*perToken;
+    maxToken = (i<n-1)?nextToken:(nextToken+restToken);
+    scheduleMetaInit(&meta[i],minToken,maxToken,sn);
+    minToken= maxToken+1;
+    dictAdd(cm->dt,&meta[i].nodeName,&meta);
+    logInfo(LOG_INFO_LEVEL,"server info:name=%s,tags=%s,mintoken=%d,maxtoken=%d",meta[i].nodeName->data,meta[i].nodeTags->data,mata[i].minToken,meta[i].maxToken);
   }
   if (f != NULL)
   {
     confDestroy(f);
+  }
+}
+void clusterManagerDeinit(clusterManager *cm){
+  if(cm->dt !=NULL) {
+    dictDestroy(cm->dt);
+    cm->dt = NULL;
   }
 }

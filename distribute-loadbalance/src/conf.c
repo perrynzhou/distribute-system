@@ -21,6 +21,7 @@ static struct command conf_commands[] = {
     {string("threads"), confSetNum, offsetof(struct confPool, threads)},
     {string("backlog"), confSetNum, offsetof(struct confPool, backlog)},
     {string("tags"), confSetString, offsetof(struct confPool, tags)},
+    {string("liveport"), confSetNum, offsetof(struct confPool, liveport)},
     nilCommand,
 };
 static int confPoolInit(struct confPool *cp, struct string *name)
@@ -32,6 +33,7 @@ static int confPoolInit(struct confPool *cp, struct string *name)
   cp->backlog = CONF_UNSET_NUM;
   cp->threads = CONF_UNSET_NUM;
   cp->port = CONF_UNSET_NUM;
+  cp->liveport = CONF_UNSET_NUM;
   stringInit(&cp->tags);
   stringInit(&cp->addr);
   status = stringDuplicate(&cp->name, name);
@@ -40,9 +42,7 @@ static int confPoolInit(struct confPool *cp, struct string *name)
     return status;
   }
   stringInit(&cp->addr);
-
   logDebug(LOG_VVERB, "init conf pool %p, '%.*s'", cp, name->len, name->data);
-
   return 0;
 }
 
@@ -79,6 +79,7 @@ void confDump(struct conf *cf)
     logInfo(LOG_INFO_LEVEL, "  timeout: %d", cp->timeout);
     logInfo(LOG_INFO_LEVEL, "  backlog: %d", cp->backlog);
     logInfo(LOG_INFO_LEVEL, "  threads: %d", cp->threads);
+    logInfo(LOG_INFO_LEVEL, "  liveport: %d", cp->liveport);
   }
 }
 

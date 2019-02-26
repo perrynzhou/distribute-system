@@ -24,6 +24,7 @@ typedef struct serviceNode
   struct string  tags;
   struct string  name;
   struct string addr;
+  int detectLivePort;
   struct string clusterAddr;
   int uid;
   int threadCount;
@@ -31,6 +32,7 @@ typedef struct serviceNode
   int sock;
   bool isStop;
   int timeout;
+  uint64_t tokenCount;
   readCb readcb;
   writeCb writecb;
   exceptionCb exceptioncb;

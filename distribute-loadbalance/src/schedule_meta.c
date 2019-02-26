@@ -14,6 +14,8 @@ void scheduleMetaInit(scheduleMeta *sm, uint64_t mintoken, uint64_t maxtoken, se
   sm->node = node;
   sm->connectionCount = 0;
   sm->nodeStatus = true;
+  sm->nodeName = &node->name;
+  sm->nodeTags = &node->tags;
   pthread_mutex_init(&sm->lock, NULL);
 }
 inline void scheduleMetaUpdateConnection(scheduleMeta *sm, bool flag)
@@ -51,4 +53,5 @@ bool scheduleMetaCheckValid(scheduleMeta *sm)
 void scheduleMetaDeinit(scheduleMeta *sm)
 {
   sm->minToken = sm->maxToken = 0;
+  serviceNodeDestroy(sm->node);
 }

@@ -12,11 +12,13 @@
 typedef struct clusterManager
 {
   dict *dt;
+  scheduleMeta *meta;
   int nodeSize;
 }clusterManager;
 void clusterMangerCreate(clusterManager *cm,const char *addr,const char *path);
-void clusterManagerAddNode();
-void clusterManagerDelNode();
+void clusterManagerRun(clusterManager *cm);
+void clusterManagerAddNode(clusterManager *cm,const char *srvAddr);
+void clusterManagerDelNode(clusterManager *cm,const char *srvAddr);
 void clusterMangerPrint(clusterManager *cm);
 void clusterManagerDeinit(clusterManager *cm);
 #endif

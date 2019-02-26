@@ -15,6 +15,8 @@ typedef struct scheduleMeta
 {
   uint64_t minToken;
   uint64_t maxToken;
+  struct string *nodeName;
+  struct string *nodeTags;
   uint64_t connectionCount;
   uint64_t handleFailedCount;
   bool     nodeStatus;

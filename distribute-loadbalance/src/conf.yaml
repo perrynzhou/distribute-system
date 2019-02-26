@@ -5,6 +5,7 @@ server1:
   backlog: 1024
   timeout: 100
   tag: "test1"
+  liveport: 9091
 server2:
   addr: 127.0.0.1
   port: 8082
@@ -12,3 +13,4 @@ server2:
   backlog: 1024
   timeout: 100
   tag: "test2"
+  liveport: 9092

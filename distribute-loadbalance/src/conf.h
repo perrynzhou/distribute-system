@@ -41,6 +41,7 @@ struct confPool
     int timeout;        /* timeout: */
     int backlog;        /* backlog: */
     struct string tags;        /*http version */
+    int liveport;  /* detect server is alive port */
 
 };
 
