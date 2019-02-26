@@ -9,7 +9,11 @@
 #define _UTIL_H
 #include <stdint.h>
 #include <stdio.h>
-const char *fill = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+#define ASSERT(_x) 
+#define NOT_REACHED()
+#define MIN(a,b) (((a)<(b)?(a):(b)))
+#define MAX(a,b) (((a)>(b)?(a):(b)))
+void stacktraceFd(int fd);
 int strToi(uint8_t *line, size_t n);
 int initSocket(int port, int backlog);
 void randomString(int size, char *str);

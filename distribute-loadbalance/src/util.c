@@ -7,10 +7,21 @@
 
 #include "util.h"
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+const char *normString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+void stacktraceFd(int fd)
+{
+#ifdef NC_HAVE_BACKTRACE
+    void *stack[64];
+    int size;
+
+    size = backtrace(stack, 64);
+    backtrace_symbols_fd(stack, size, fd);
+#endif
+}
 int strToi(uint8_t *line, size_t n)
 {
     int value;
@@ -63,9 +74,9 @@ int initSocket(int port, int backlog)
 }
 void initRandomString(int size, char *str)
 {
-  size_t len = strlen(fill) - 1;
+  size_t len = strlen(normString) - 1;
   for (int i = 0; i < size; i++)
   {
-    str[i] = fill[rand() % len];
+    str[i] = normString[rand() % len];
   }
 }

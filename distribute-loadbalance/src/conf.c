@@ -1208,8 +1208,8 @@ char *confSetHash(struct conf *cf, struct command *cmd, void *conf)
 #ifdef CONF_TEST
 int main(void)
 {
-  logInit(logInfo, NULL);
-  struct conf *f = confCreate("./test.yml", false);
+  logInit(LOG_INFO_LEVEL, NULL);
+  struct conf *f = confCreate("./conf.yaml", false);
   if (f != NULL)
   {
     confDump(f);

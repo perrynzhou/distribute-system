@@ -139,7 +139,7 @@ void logStackTrace(void)
     {
         return;
     }
-    stacktrace_fd(l->fd);
+    stacktraceFd(l->fd);
 }
 
 int logLoggable(int level)
