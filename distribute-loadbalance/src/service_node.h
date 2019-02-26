@@ -7,6 +7,7 @@
 
 #ifndef _SERVICE_NODE_H
 #define _SERVICE_NODE_H
+#include "cstring.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -20,18 +21,24 @@ enum serviceNodeErrorCode
 };
 typedef struct serviceNode
 {
-  struct string  *tag;
+  struct string  tags;
+  struct string  name;
+  struct string addr;
+  struct string clusterAddr;
   int uid;
   int threadCount;
   pthread_t *thds;
   int sock;
   bool isStop;
+  int timeout;
   readCb readcb;
   writeCb writecb;
   exceptionCb exceptioncb;
 } serviceNode;
-serviceNode *serviceNodeCreate(const char *tag,int port, int threads);
-void serviceNodeInit(serviceNode *sn,const char *tag, int port, int threads);
+serviceNode *serviceNodeCreate(const char *name,const char *tag,int threads);
+void serviceNodeInit(serviceNode *sn,const char *name,const char *tags, int threads);
+void serviceNodeSetSocketInfo(serviceNode *sn,const char *addr,int port,int timeout,int backlog);
+void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr);
 void serviceNodeSetCb(serviceNode *sn, readCb readcb, writeCb writecb, exceptionCb exceptioncb);
 int serviceNodeRun(serviceNode *sn);
 void serviceNodeStop(serviceNode *sn);

@@ -7,6 +7,7 @@
 
 #include "dict.h"
 #include "hashkit.h"
+#include "cstring.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -17,7 +18,7 @@ dictEntry *dictEntryCreate(const char *key, void *value, uint64_t keyCode)
   dictEntry *entry = (dictEntry *)calloc(1, sizeof(*entry));
   assert(entry != NULL);
   entry->value = value;
-  entry->key = strdup(key);
+  stringInitWitdData(&entry->key,key);
   entry->keyCode = keyCode;
   entry->next = NULL;
   return entry;
@@ -26,7 +27,7 @@ void dictEntryDestroy(dictEntry *entry, destroyCb destroyCb)
 {
   if (entry != NULL)
   {
-    free(entry->key);
+    stringDeinit(&entry->key);
     if (destroyCb != NULL)
     {
       destroyCb(entry->value);
@@ -92,7 +93,7 @@ int dictDel(dict *dt, void *key)
   while (cur != NULL)
   {
     dictEntry *next = cur->next;
-    if (strncmp(strKey, cur->key, strLen) == 0)
+    if (strncmp(strKey, (const char *)cur->key.data, strLen) == 0)
     {
       target = cur;
       break;
@@ -123,13 +124,13 @@ void *dictFind(dict *dt, const char *key)
   int index = hash_jump_consistent(keyCode, dt->dictSlotSize);
   if (dt->tables[index] == NULL)
   {
-    return keyNotExistsErr;
+    return NULL;
   }
   dictEntry *cur = dt->tables[index];
   while (cur != NULL)
   {
     dictEntry *next = cur->next;
-    if (strncmp(strKey, cur->key, strLen) == 0)
+    if (strncmp(strKey, (const char *)cur->key.data, strLen) == 0)
     {
       return cur->value;
     }

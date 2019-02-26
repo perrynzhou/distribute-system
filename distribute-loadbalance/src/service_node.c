@@ -12,18 +12,27 @@
 #include <pthread.h>
 #include <assert.h>
 #include <sys/socket.h>
-#define SERVICE_Node_MAX_BACKLOG (1024)
-serviceNode *serviceNodeCreate(const char *tag, int port, int threads)
+#define SERVICE_NODE_MAX_BACKLOG (1024)
+serviceNode *serviceNodeCreate(const char *name,const char *tags, int threads)
 {
   serviceNode *node = (serviceNode *)calloc(1, sizeof(*node));
   assert(node != NULL);
-  serviceNodeInit(node, tag, port, threads);
+  serviceNodeInit(node, name,tags, threads);
   return node;
 }
-void serviceNodeInit(serviceNode *sn, const char *tag, int port, int threads)
+void serviceNodeSetSocketInfo(serviceNode *sn,const char *addr,int port,int timeout,int backlog){
+ stringInitWithData(&sn->addr,addr);
+  int backlog_ = (backlog<SERVICE_NODE_MAX_BACKLOG)?SERVICE_NODE_MAX_BACKLOG:backlog;
+  sn->sock = initSocket(port, backlog_);
+  sn->timeout = timeout;
+}
+inline void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr) {
+  stringInitWithData(&sn->clusterAddr,clusterAddr);
+}
+void serviceNodeInit(serviceNode *sn,const char *name, const char *tags,int threads)
 {
-  sn->tag = strdup(tag);
-  sn->sock = initSocket(port, SERVICE_Node_MAX_BACKLOG);
+  stringInitWithData(&sn->name,name);
+  stringInitWithData(&sn->tags,tags);
   sn->thds = (pthread_t *)calloc(threads, sizeof(pthread_t));
   sn->isStop = false;
 }
@@ -78,9 +87,9 @@ void serviceNodeDeinit(serviceNode *sn)
     close(sn->sock);
   }
   free(sn->thds);
-  free(sn->tag);
+  stringDeinit(&sn->tags);
+  stringDeinit(&sn->name);
   sn->thds = NULL;
-  sn->tag = NULL;
 }
 void serviceNodeDestroy(serviceNode *sn)
 {
