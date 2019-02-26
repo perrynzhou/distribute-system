@@ -1136,7 +1136,7 @@ char *confSetNum(struct conf *cf, struct command *cmd, void *conf)
 
   value = arrayTop(&cf->arg);
 
-  num = StrToi(value->data, value->len);
+  num = strToi(value->data, value->len);
   if (num < 0)
   {
     return "is not a number";

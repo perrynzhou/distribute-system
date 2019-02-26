@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-int StrToi(uint8_t *line, size_t n)
+int strToi(uint8_t *line, size_t n)
 {
     int value;
 

@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 const char *fill = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-int StrToi(uint8_t *line, size_t n);
+int strToi(uint8_t *line, size_t n);
 int initSocket(int port, int backlog);
 void randomString(int size, char *str);
 #endif
