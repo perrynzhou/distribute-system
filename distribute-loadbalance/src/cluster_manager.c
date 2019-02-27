@@ -85,6 +85,7 @@ void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize, c
     }
     cm->meta[i] = (scheduleMeta *)calloc(1, sizeof(scheduleMeta));
     nodeConnectionInfoInit(&ncies[i], (const char *)sn->nodeAddr.data, sn->reportStatusPort);
+    vectorAdd(cm->udpVec,&ncies[i]);
     scheduleMetaInit(cm->meta[i], minToken, maxToken, sn);
     dictAdd(cm->dt, cm->meta[i]->nodeName, cm->meta[i]);
     logInfo(LOG_INFO_LEVEL, "server info:name=%s,tags=%s,mintoken=%ld,maxtoken=%ld", (char *)cm->meta[i]->nodeName->data, (char *)cm->meta[i]->nodeTags->data, cm->meta[i]->minToken, cm->meta[i]->maxToken);
@@ -107,6 +108,7 @@ void clusterManagerDeinit(clusterManager *cm)
       if (info != NULL)
       {
         nodeConnectionInfoDeinit(info);
+        logInfo(LOG_INFO_LEVEL,"release nodeConnectionInfo %p",info);
       }
     }
     free(cm->ctx);

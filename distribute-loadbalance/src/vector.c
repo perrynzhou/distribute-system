@@ -102,6 +102,7 @@ vector *vectorCreate (int64_t maxsize, free_callback fcb, cmp_callback ccb)
 	v->fcb = fcb;
 	v->ccb = ccb;
 	v->maxsize = maxsize;
+	v->cursize =0;
 	v->item = (void **) malloc (sizeof (void *) * v->maxsize);
 	assert (v->item != NULL);
 	v->oversize = (int64_t) (maxsize * VECTOR_EXPAND_RATE);

@@ -19,11 +19,11 @@ struct logger
 #define LOG_ALERT_LEVEL 1   /* action must be taken immediately */
 #define LOG_CRIT_LEVEL 2    /* critical conditions */
 #define LOG_ERR_LEVEL 3     /* error conditions */
-#define LOG_WARNING_LEVEL 4     /* warning conditions */
+#define LOG_WARNING_LEVEL 4 /* warning conditions */
 #define LOG_NOTICE_LEVEL 5  /* normal but significant condition (default) */
-#define LOG_INFO_LEVEL 6     /* informational */
-#define LOG_DEBUG_LEVEL 7    /* debug messages */
-#define LOG_VERB_LVEL 8    /* verbose messages */
+#define LOG_INFO_LEVEL 6    /* informational */
+#define LOG_DEBUG_LEVEL 7   /* debug messages */
+#define LOG_VERB_LVEL 8     /* verbose messages */
 #define LOG_VVERB_LEVEL 9   /* verbose messages on crack */
 #define LOG_VVVERB_LEVEL 10 /* verbose messages on ganga */
 #define LOG_PVERB_LEVEL 11  /* periodic verbose messages on crack */
@@ -78,7 +78,6 @@ struct logger
             _log(__FILE__, __LINE__, 0, __VA_ARGS__); \
         }                                             \
     } while (0)
-
 #define logStderr(...)           \
     do                           \
     {                            \
@@ -114,7 +113,7 @@ struct logger
 #define logError(...)                                 \
     do                                                \
     {                                                 \
-        if (logLoggable(LOG_ALERT_LEVEL) != 0)              \
+        if (logLoggable(LOG_ALERT_LEVEL) != 0)        \
         {                                             \
             _log(__FILE__, __LINE__, 0, __VA_ARGS__); \
         }                                             \
