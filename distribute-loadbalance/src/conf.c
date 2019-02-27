@@ -76,13 +76,19 @@ void confDump(struct conf *cf)
   {
     cp = arrayGet(&cf->pool, i);
 
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeName.len, cp->nodeName.data);
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeAddr.len, cp->nodeAddr.data);
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeTags, cp->nodeTags.data);
-    logInfo(LOG_INFO_LEVEL, "  port: %d", cp->nodePort);
-    logInfo(LOG_INFO_LEVEL, "  timeout: %d", cp->nodeTcpTimeout);
-    logInfo(LOG_INFO_LEVEL, "  backlog: %d", cp->nodeTcpBacklog);
-    logInfo(LOG_INFO_LEVEL, "  threads: %d", cp->nodeWorkerThreads);
+    logInfo(LOG_INFO_LEVEL, "nodeName:%.*s", cp->nodeName.len, cp->nodeName.data);
+    logInfo(LOG_INFO_LEVEL, " nodeAddr:%.*s", cp->nodeAddr.len, cp->nodeAddr.data);
+    logInfo(LOG_INFO_LEVEL, " nodeTags:%.*s", cp->nodeTags, cp->nodeTags.data);
+    logInfo(LOG_INFO_LEVEL, " nodePort: %d", cp->nodePort);
+    logInfo(LOG_INFO_LEVEL, " nodeTcpTimeOut: %d", cp->nodeTcpTimeout);
+    logInfo(LOG_INFO_LEVEL, " nodeTcpBacklog: %d", cp->nodeTcpBacklog);
+    logInfo(LOG_INFO_LEVEL, " nodeWorkerThreads: %d", cp->nodeWorkerThreads);
+
+    logInfo(LOG_INFO_LEVEL, " nodeReportStatusTimeout: %d", cp->nodeReportStatusTimeout);
+    logInfo(LOG_INFO_LEVEL, " nodeWeight: %d", cp->nodeWeight);
+    logInfo(LOG_INFO_LEVEL, " clusterAddr: %d", cp->clusterAddr);
+    logInfo(LOG_INFO_LEVEL, " clusterHeartbeatPort: %d\n", cp->clusterHeartbeatPort);
+   
   }
 }
 
