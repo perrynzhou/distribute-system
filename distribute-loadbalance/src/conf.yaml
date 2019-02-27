@@ -5,6 +5,7 @@ server1:
   node_tcp_backlog: 1024
   node_tcp_timeout: 100
   node_tags: "test1"
+  node_report_status_port: 9091
   node_report_status_timeout: 10
   node_weight: 1
   cluster_addr: 127.0.0.81
@@ -16,6 +17,7 @@ server2:
   node_tcp_backlog: 1024
   node_tcp_timeout: 100
   node_tags: "test2"
+  node_report_status_port: 9092
   node_report_status_timeout: 10
   node_weight: 1
   cluster_addr: 127.0.0.82
@@ -28,6 +30,7 @@ server3:
   node_tcp_timeout: 100
   node_tags: "test3"
   node_weight: 1
+  node_report_status_port: 9093
   node_report_status_timeout : 10
   cluster_addr: 127.0.0.83
   cluster_heartbeat_port: 1093

@@ -40,6 +40,7 @@ struct confPool
     int nodeWorkerThreads;        /*  threads worker for accept  client connection*/
     int nodeTcpTimeout;        /* timeout: */
     int nodeTcpBacklog;        /* backlog: */
+    int nodeReportStatusPort;
     int nodeReportStatusTimeout;
     struct string nodeTags;        /*http version */
     struct string clusterAddr;

@@ -20,6 +20,7 @@ static struct command conf_commands[] = {
     {string("node_tcp_backlog"), confSetNum, offsetof(struct confPool, nodeTcpBacklog)},
     {string("node_tags"), confSetString, offsetof(struct confPool, nodeTags)},
     {string("node_weight"), confSetNum, offsetof(struct confPool, nodeWeight)},
+    {string("node_report_status_port"), confSetNum, offsetof(struct confPool, nodeReportStatusPort)},
     {string("node_report_status_timeout"), confSetNum, offsetof(struct confPool, nodeReportStatusTimeout)},
     {string("cluster_addr"), confSetString, offsetof(struct confPool, clusterAddr)},
     {string("cluster_heartbeat_port"), confSetNum, offsetof(struct confPool, clusterHeartbeatPort)},
@@ -34,9 +35,10 @@ static int confPoolInit(struct confPool *cp, struct string *name)
   cp->nodeTcpBacklog = CONF_UNSET_NUM;
   cp->nodeWorkerThreads = CONF_UNSET_NUM;
   cp->nodePort = CONF_UNSET_NUM;
-  cp->nodeReportStatusTimeout=CONF_UNSET_NUM;
-  cp->nodeWeight=CONF_UNSET_NUM;
-  cp->clusterHeartbeatPort=CONF_UNSET_NUM;
+  cp->nodeReportStatusTimeout = CONF_UNSET_NUM;
+  cp->nodeReportStatusPort =CONF_UNSET_NUM;
+  cp->nodeWeight = CONF_UNSET_NUM;
+  cp->clusterHeartbeatPort = CONF_UNSET_NUM;
   stringInit(&cp->nodeTags);
   stringInit(&cp->nodeAddr);
   stringInit(&cp->clusterAddr);
@@ -83,12 +85,12 @@ void confDump(struct conf *cf)
     logInfo(LOG_INFO_LEVEL, " nodeTcpTimeOut: %d", cp->nodeTcpTimeout);
     logInfo(LOG_INFO_LEVEL, " nodeTcpBacklog: %d", cp->nodeTcpBacklog);
     logInfo(LOG_INFO_LEVEL, " nodeWorkerThreads: %d", cp->nodeWorkerThreads);
+    logInfo(LOG_INFO_LEVEL, " node_report_status_port: %d", cp->nodeReportStatusPort);
 
     logInfo(LOG_INFO_LEVEL, " nodeReportStatusTimeout: %d", cp->nodeReportStatusTimeout);
     logInfo(LOG_INFO_LEVEL, " nodeWeight: %d", cp->nodeWeight);
     logInfo(LOG_INFO_LEVEL, " clusterAddr: %d", cp->clusterAddr);
     logInfo(LOG_INFO_LEVEL, " clusterHeartbeatPort: %d\n", cp->clusterHeartbeatPort);
-   
   }
 }
 

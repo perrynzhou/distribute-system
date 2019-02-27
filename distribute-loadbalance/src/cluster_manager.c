@@ -14,11 +14,26 @@
 #include "hashkit.h"
 #include <stdio.h>
 #include <stdint.h>
-#define CLUSTER_MANAGER_NODES_CAP  (64)
-void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize,const char *path)
+#define CLUSTER_MANAGER_NODES_CAP (64)
+void nodeConnectionInfoInit(nodeConnectionInfo *nci, const char *addr, int port)
 {
-  if(maxNodeSize > CLUSTER_MANAGER_NODES_CAP) {
-    logError("over maxsize(%d) for nodes!!!",CLUSTER_MANAGER_NODES_CAP);
+  stringInitWithData(&nci->addr, addr);
+  nci->port = port;
+  initUdpSocket(addr, port, &nci->info);
+}
+void nodeConnectionInfoDeinit(nodeConnectionInfo *nci)
+{
+  stringDeinit(&nci->addr);
+  if (nci->info.sock != -1)
+  {
+    close(nci->info.sock);
+  }
+}
+void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize, const char *path)
+{
+  if (maxNodeSize > CLUSTER_MANAGER_NODES_CAP)
+  {
+    logError("over maxsize(%d) for nodes!!!", CLUSTER_MANAGER_NODES_CAP);
     return;
   }
   logInit(LOG_INFO_LEVEL, NULL);
@@ -41,7 +56,9 @@ void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize,co
   uint64_t minToken = 0, maxToken = 0;
   //scheduleMeta *meta = (scheduleMeta *)calloc(n, sizeof(*meta));
   cm->meta = (scheduleMeta **)calloc(n, sizeof(scheduleMeta *));
-
+  cm->udpVec = vectorCreate(n * 2, NULL, NULL);
+  nodeConnectionInfo *ncies = (nodeConnectionInfo *)calloc(n, sizeof(nodeConnectionInfo));
+  cm->ctx = ncies;
   for (int i = 0; i < n; i++)
   {
     struct confPool *pool = (struct confPool *)arrayGet(&f->pool, i);
@@ -63,10 +80,11 @@ void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize,co
     }
     else
     {
-      minToken = maxToken+1;
+      minToken = maxToken + 1;
       maxToken = u32Max - 1;
     }
     cm->meta[i] = (scheduleMeta *)calloc(1, sizeof(scheduleMeta));
+    nodeConnectionInfoInit(&ncies[i], (const char *)sn->nodeAddr.data, sn->reportStatusPort);
     scheduleMetaInit(cm->meta[i], minToken, maxToken, sn);
     dictAdd(cm->dt, cm->meta[i]->nodeName, cm->meta[i]);
     logInfo(LOG_INFO_LEVEL, "server info:name=%s,tags=%s,mintoken=%ld,maxtoken=%ld", (char *)cm->meta[i]->nodeName->data, (char *)cm->meta[i]->nodeTags->data, cm->meta[i]->minToken, cm->meta[i]->maxToken);
@@ -81,7 +99,17 @@ void clusterManagerDeinit(clusterManager *cm)
   if (cm->dt != NULL)
   {
     dictDestroy(cm->dt);
+    int n = vectorSize(cm->udpVec);
     cm->dt = NULL;
+    for (int i = 0; i < cm->nodeSize; i++)
+    {
+      nodeConnectionInfo *info = (nodeConnectionInfo *)vectorGet(cm->udpVec, i);
+      if (info != NULL)
+      {
+        nodeConnectionInfoDeinit(info);
+      }
+    }
+    free(cm->ctx);
   }
 }
 #ifdef TEST
@@ -89,7 +117,7 @@ int main()
 {
   logInit(LOG_INFO_LEVEL, NULL);
   clusterManager cm;
-  clusterManagerInit(&cm, "127.0.0.1:10091",16, "./conf.yaml");
+  clusterManagerInit(&cm, "127.0.0.1:10091", 16, "./conf.yaml");
   clusterManagerDeinit(&cm);
   return 0;
 }

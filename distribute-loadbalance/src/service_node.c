@@ -28,7 +28,7 @@ void serviceNodeSetClusterInfo(serviceNode *sn,const char *caddr,int port,int ti
 void serviceNodeSetSocketInfo(serviceNode *sn,const char *addr,int port,int timeout,int backlog){
  stringInitWithData(&sn->nodeAddr,addr);
   int backlog_ = (backlog<SERVICE_NODE_MAX_BACKLOG)?SERVICE_NODE_MAX_BACKLOG:backlog;
-  sn->sock = initTcpSocket(port, backlog_);
+  sn->sock = initTcpSocket(addr,port, backlog_);
   sn->timeout = timeout;
 }
 inline void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr) {

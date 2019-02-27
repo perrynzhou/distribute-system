@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 const char *normString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 void stacktraceFd(int fd)
 {
@@ -48,7 +49,7 @@ int strToi(uint8_t *line, size_t n)
 
   return value;
 }
-int initTcpSocket(int port, int backlog)
+int initTcpSocket(const char *addr, int port, int backlog)
 {
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in srvaddr;
@@ -59,7 +60,8 @@ int initTcpSocket(int port, int backlog)
 
   memset(&srvaddr, 0, sizeof(srvaddr));
   srvaddr.sin_family = AF_INET;
-  srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  srvaddr.sin_addr.s_addr = inet_addr(addr);
+
   srvaddr.sin_port = htons(port);
 
   if (bind(sock, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) == -1)
@@ -72,25 +74,27 @@ int initTcpSocket(int port, int backlog)
   }
   return sock;
 }
-int initUdpSocket(int port)
+int initUdpSocket(const char *addr, int port, UdpInfo *ui)
 {
   int sock = socket(AF_INET, SOCK_DGRAM, 0);
   struct sockaddr_in srvaddr;
-  if (sock == -1)
+  if (sock != -1)
   {
     return -1;
   }
 
   memset(&srvaddr, 0, sizeof(srvaddr));
   srvaddr.sin_family = AF_INET;
-  srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  srvaddr.sin_addr.s_addr = inet_addr(addr);
   srvaddr.sin_port = htons(port);
 
   if (bind(sock, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) == -1)
   {
     return -1;
   }
-  return sock;
+  ui->sock = sock;
+  ui->addr = srvaddr;
+  return 0;
 }
 void initRandomString(int size, char *str)
 {
@@ -99,4 +103,8 @@ void initRandomString(int size, char *str)
   {
     str[i] = normString[rand() % len];
   }
+}
+inline int checkHeartbeat(UdpInfo *info, void *pkg, int pkg_len)
+{
+   return sendto(info->sock,pkg,pkg_len,0,(struct sockaddr *)&info->addr,sizeof(struct sockaddr));
 }

@@ -28,6 +28,7 @@ typedef struct serviceNode
   int  clusterHeartbeatPort;
   int uid;
   int threadCount;
+  int  reportStatusPort;
   int reportStatusTimeout;
   pthread_t *thds;
   int sock;
