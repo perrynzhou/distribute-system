@@ -15,38 +15,38 @@ const char *normString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 void stacktraceFd(int fd)
 {
 #ifdef NC_HAVE_BACKTRACE
-    void *stack[64];
-    int size;
+  void *stack[64];
+  int size;
 
-    size = backtrace(stack, 64);
-    backtrace_symbols_fd(stack, size, fd);
+  size = backtrace(stack, 64);
+  backtrace_symbols_fd(stack, size, fd);
 #endif
 }
 int strToi(uint8_t *line, size_t n)
 {
-    int value;
+  int value;
 
-    if (n == 0)
+  if (n == 0)
+  {
+    return -1;
+  }
+
+  for (value = 0; n--; line++)
+  {
+    if (*line < '0' || *line > '9')
     {
-        return -1;
+      return -1;
     }
 
-    for (value = 0; n--; line++)
-    {
-        if (*line < '0' || *line > '9')
-        {
-            return -1;
-        }
+    value = value * 10 + (*line - '0');
+  }
 
-        value = value * 10 + (*line - '0');
-    }
+  if (value < 0)
+  {
+    return -1;
+  }
 
-    if (value < 0)
-    {
-        return -1;
-    }
-
-    return value;
+  return value;
 }
 int initTcpSocket(int port, int backlog)
 {
@@ -67,6 +67,26 @@ int initTcpSocket(int port, int backlog)
     return -1;
   }
   if (listen(sock, backlog) == -1)
+  {
+    return -1;
+  }
+  return sock;
+}
+int initUdpSocket(int port)
+{
+  int sock = socket(AF_INET, SOCK_DGRAM, 0);
+  struct sockaddr_in srvaddr;
+  if (sock == -1)
+  {
+    return -1;
+  }
+
+  memset(&srvaddr, 0, sizeof(srvaddr));
+  srvaddr.sin_family = AF_INET;
+  srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  srvaddr.sin_port = htons(port);
+
+  if (bind(sock, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) == -1)
   {
     return -1;
   }
