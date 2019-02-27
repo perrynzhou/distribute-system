@@ -48,7 +48,7 @@ int strToi(uint8_t *line, size_t n)
 
     return value;
 }
-int initSocket(int port, int backlog)
+int initTcpSocket(int port, int backlog)
 {
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in srvaddr;

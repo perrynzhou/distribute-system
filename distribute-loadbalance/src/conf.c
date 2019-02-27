@@ -13,44 +13,43 @@
 #include <string.h>
 #include <assert.h>
 static struct command conf_commands[] = {
-    {string("addr"), confSetString, offsetof(struct confPool, addr)},
-    {string("port"), confSetNum, offsetof(struct confPool, port)},
-
-    {string("timeout"), confSetNum, offsetof(struct confPool, timeout)},
-
-    {string("threads"), confSetNum, offsetof(struct confPool, threads)},
-    {string("backlog"), confSetNum, offsetof(struct confPool, backlog)},
-    {string("tags"), confSetString, offsetof(struct confPool, tags)},
-    {string("liveport"), confSetNum, offsetof(struct confPool, liveport)},
+    {string("node_addr"), confSetString, offsetof(struct confPool, nodeAddr)},
+    {string("node_port"), confSetNum, offsetof(struct confPool, nodePort)},
+    {string("node_tcp_timeout"), confSetNum, offsetof(struct confPool, nodeTcpTimeout)},
+    {string("node_worker_threads"), confSetNum, offsetof(struct confPool, nodeWorkerThreads)},
+    {string("node_tcp_backlog"), confSetNum, offsetof(struct confPool, nodeTcpBacklog)},
+    {string("node_tags"), confSetString, offsetof(struct confPool, nodeTags)},
+    {string("node_report_status_timeout"), confSetNum, offsetof(struct confPool, nodeReportStatusTimeout)},
+    {string("cluster_addr"), confSetString, offsetof(struct confPool, clusterAddr)},
+    {string("cluster_heartbeat_port"), confSetNum, offsetof(struct confPool, clusterHeartbeatPort)},
     nilCommand,
 };
 static int confPoolInit(struct confPool *cp, struct string *name)
 {
   int status;
 
-  stringInit(&cp->name);
-  cp->timeout = CONF_UNSET_NUM;
-  cp->backlog = CONF_UNSET_NUM;
-  cp->threads = CONF_UNSET_NUM;
-  cp->port = CONF_UNSET_NUM;
-  cp->liveport = CONF_UNSET_NUM;
-  stringInit(&cp->tags);
-  stringInit(&cp->addr);
-  status = stringDuplicate(&cp->name, name);
+  stringInit(&cp->nodeName);
+  cp->nodeTcpTimeout = CONF_UNSET_NUM;
+  cp->nodeTcpBacklog = CONF_UNSET_NUM;
+  cp->nodeWorkerThreads = CONF_UNSET_NUM;
+  cp->nodePort = CONF_UNSET_NUM;
+  stringInit(&cp->nodeTags);
+  stringInit(&cp->nodeAddr);
+  status = stringDuplicate(&cp->nodeName, name);
   if (status != 0)
   {
     return status;
   }
-  stringInit(&cp->addr);
+  stringInit(&cp->nodeAddr);
   logDebug(LOG_VVERB, "init conf pool %p, '%.*s'", cp, name->len, name->data);
   return 0;
 }
 
 static void confPoolDeinit(struct confPool *cp)
 {
-  stringDeinit(&cp->name);
-  stringDeinit(&cp->addr);
-  stringDeinit(&cp->tags);
+  stringDeinit(&cp->nodeName);
+  stringDeinit(&cp->nodeAddr);
+  stringDeinit(&cp->nodeTags);
   logDebug(LOG_VVERB, "deinit conf pool %p", cp);
 }
 
@@ -72,14 +71,13 @@ void confDump(struct conf *cf)
   {
     cp = arrayGet(&cf->pool, i);
 
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->name.len, cp->name.data);
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->addr.len, cp->addr.data);
-    logInfo(LOG_INFO_LEVEL, "%.*s", cp->tags, cp->tags.data);
-    logInfo(LOG_INFO_LEVEL, "  port: %d", cp->port);
-    logInfo(LOG_INFO_LEVEL, "  timeout: %d", cp->timeout);
-    logInfo(LOG_INFO_LEVEL, "  backlog: %d", cp->backlog);
-    logInfo(LOG_INFO_LEVEL, "  threads: %d", cp->threads);
-    logInfo(LOG_INFO_LEVEL, "  liveport: %d", cp->liveport);
+    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeName.len, cp->nodeName.data);
+    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeAddr.len, cp->nodeAddr.data);
+    logInfo(LOG_INFO_LEVEL, "%.*s", cp->nodeTags, cp->nodeTags.data);
+    logInfo(LOG_INFO_LEVEL, "  port: %d", cp->nodePort);
+    logInfo(LOG_INFO_LEVEL, "  timeout: %d", cp->nodeTcpTimeout);
+    logInfo(LOG_INFO_LEVEL, "  backlog: %d", cp->nodeTcpBacklog);
+    logInfo(LOG_INFO_LEVEL, "  threads: %d", cp->nodeWorkerThreads);
   }
 }
 
@@ -942,11 +940,11 @@ static int confValidatePool(struct conf *cf, struct confPool *cp)
 
   if (cp->timeout == CONF_UNSET_NUM)
   {
-    cp->timeout = CONF_DEFAULT_TIMEOUT;
+    cp->nodeTcpTimeout = CONF_DEFAULT_TIMEOUT;
   }
   if (cp->backlog == CONF_UNSET_NUM)
   {
-    cp->backlog = CONF_DEFAULT_LISTEN_BACKLOG;
+    cp->nodeTcpBacklog = CONF_DEFAULT_LISTEN_BACKLOG;
   }
   if (cp->port == CONF_UNSET_NUM)
   {
@@ -992,11 +990,11 @@ static int confPostValidate(struct conf *cf)
     p1 = arrayGet(&cf->pool, i);
     p2 = arrayGet(&cf->pool, i + 1);
 
-    if (stringCompare(&p1->addr, &p2->addr) == 0 && p1->port == p2->port)
+    if (stringCompare(&p1->nodeAddr, &p2->nodeAddr) == 0 && p1->nodePort == p2->nodePort)
     {
       logError("conf: pools '%.*s' and '%.*s' have the same listen address '%s:%d'",
-               p1->name.len, p1->name.data, p2->name.len, p2->name.data,
-               p1->addr.data, p1->port);
+               p1->nodeName.len, p1->nodeName.data, p2->nodeName.len, p2->nodeName.data,
+               p1->nodeAddr.data, p1->nodePort);
       valid = false;
       break;
     }
@@ -1015,10 +1013,10 @@ static int confPostValidate(struct conf *cf)
     p1 = arrayGet(&cf->pool, i);
     p2 = arrayGet(&cf->pool, i + 1);
 
-    if (stringCompare(&p1->name, &p2->name) == 0)
+    if (stringCompare(&p1->nodeName, &p2->nodeName) == 0)
     {
       logError("conf: '%s' has pools with same name %.*s'", cf->fname,
-               p1->name.len, p1->name.data);
+               p1->nodeName.len, p1->nodeName.data);
       valid = false;
       break;
     }

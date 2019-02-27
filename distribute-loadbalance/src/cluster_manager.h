@@ -12,10 +12,13 @@
 typedef struct clusterManager
 {
   dict *dt;
-  scheduleMeta *meta;
+  scheduleMeta **meta;
+  int accpetRequestSock;//tcp
+  int heartBeatSock; // udp 
   int nodeSize;
+  int nodeCap; // max node in cluster
 }clusterManager;
-void clusterManagerInit(clusterManager *cm,const char *addr,const char *path);
+void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize,const char *path);
 void clusterManagerRun(clusterManager *cm);
 void clusterManagerAddNode(clusterManager *cm,const char *srvAddr);
 void clusterManagerDelNode(clusterManager *cm,const char *srvAddr);

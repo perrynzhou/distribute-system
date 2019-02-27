@@ -1,24 +1,30 @@
 server1:
-  addr: 127.0.0.1
-  port: 8081
-  threads: 2
-  backlog: 1024
-  timeout: 100
-  tags: "test1"
-  liveport: 9091
+  node_addr: 127.0.0.1
+  node_port: 8081
+  node_worker_threads: 2
+  node_tcp_backlog: 1024
+  node_tcp_timeout: 100
+  node_tags: "test1"
+  node_report_status_timeout : 10
+  cluster_addr: 127.0.0.81
+  cluster_heartbeat_port: 1091
 server2:
-  addr: 127.0.0.1
-  port: 8082
-  threads: 2
-  backlog: 1024
-  timeout: 100
-  tags: "test2"
-  liveport: 9092
+  node_addr: 127.0.0.1
+  node_port: 8081
+  node_worker_threads: 2
+  node_tcp_backlog: 1024
+  node_tcp_timeout: 100
+  node_tags: "test2"
+  node_report_status_timeout: 10
+  cluster_addr: 127.0.0.82
+  cluster_heartbeat_port: 1092
 server3:
-  addr: 127.0.0.1
-  port: 8083
-  threads: 2
-  backlog: 1024
-  timeout: 100
-  tags: "test3"
-  liveport: 9092
+  node_addr: 127.0.0.1
+  node_port: 8081
+  node_worker_threads: 2
+  node_tcp_backlog: 1024
+  node_tcp_timeout: 100
+  node_tags: "test3"
+  node_report_status_timeout : 10
+  cluster_addr: 127.0.0.83
+  cluster_heartbeat_port: 1093

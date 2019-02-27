@@ -21,13 +21,14 @@ enum serviceNodeErrorCode
 };
 typedef struct serviceNode
 {
-  struct string  tags;
-  struct string  name;
-  struct string addr;
-  int detectLivePort;
-  struct string clusterAddr;
+  struct string  nodeTags;
+  struct string  nodeName;
+  struct string nodeAddr;
+  struct string  clusterAddr;
+  int  clusterHeartbeatPort;
   int uid;
   int threadCount;
+  int reportStatusTimeout;
   pthread_t *thds;
   int sock;
   bool isStop;
@@ -38,6 +39,7 @@ typedef struct serviceNode
   exceptionCb exceptioncb;
 } serviceNode;
 serviceNode *serviceNodeCreate(const char *name,const char *tag,int threads);
+void serviceNodeSetClusterInfo(serviceNode *sn,const char *caddr,int port,int timeout);
 void serviceNodeInit(serviceNode *sn,const char *name,const char *tags, int threads);
 void serviceNodeSetSocketInfo(serviceNode *sn,const char *addr,int port,int timeout,int backlog);
 void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr);

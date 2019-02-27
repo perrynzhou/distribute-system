@@ -17,16 +17,16 @@ typedef struct scheduleMeta
   uint64_t maxToken;
   struct string *nodeName;
   struct string *nodeTags;
-  uint64_t connectionCount;
-  uint64_t handleFailedCount;
-  bool     nodeStatus;
+  uint64_t nodeConnectionCount;
+  uint64_t nodeHandleFailedCount;
+  bool nodeStatus;
   serviceNode *node;
-  pthread_mutex_t  lock;
+  pthread_mutex_t lock;
 } scheduleMeta;
-void scheduleMetaInit(scheduleMeta *sm,uint64_t mintoken,uint64_t maxtoken,serviceNode *node);
+void scheduleMetaInit(scheduleMeta *sm, uint64_t mintoken, uint64_t maxtoken, serviceNode *node);
 bool scheduleMetaCheckValid(scheduleMeta *sm);
-void scheduleMetaUpdateNodeStatus(scheduleMeta *sm,bool status);
-void scheduleMetaUpdateConnection(scheduleMeta *sm,bool flag);
-void scheduleMetaUpdateFaileCount(scheduleMeta *sm,bool flag);
+void scheduleMetaUpdateNodeStatus(scheduleMeta *sm, bool status);
+void scheduleMetaUpdateConnection(scheduleMeta *sm, bool flag);
+void scheduleMetaUpdateFaileCount(scheduleMeta *sm, bool flag);
 void scheduleMetaDeinit(scheduleMeta *sm);
 #endif

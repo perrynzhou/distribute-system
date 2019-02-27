@@ -34,15 +34,16 @@
 #define CONF_MAX_HTTP_VERSION 2
 struct confPool
 {
-    struct string name; /* pool name (root node) */
-    int port;
-    struct string addr; /* listen: */
-    int threads;        /*  threads worker for accept  client connection*/
-    int timeout;        /* timeout: */
-    int backlog;        /* backlog: */
-    struct string tags;        /*http version */
-    int liveport;  /* detect server is alive port */
-
+    struct string nodeName; /* pool name (root node) */
+    int nodePort;
+    struct string nodeAddr; /* listen: */
+    int nodeWorkerThreads;        /*  threads worker for accept  client connection*/
+    int nodeTcpTimeout;        /* timeout: */
+    int nodeTcpBacklog;        /* backlog: */
+    int nodeReportStatusTimeout;
+    struct string nodeTags;        /*http version */
+    struct string clusterAddr;
+    int clusterHeartbeatPort;
 };
 
 struct conf

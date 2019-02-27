@@ -15,6 +15,7 @@
 #define MAX(a,b) (((a)>(b)?(a):(b)))
 void stacktraceFd(int fd);
 int strToi(uint8_t *line, size_t n);
-int initSocket(int port, int backlog);
+int initTcpSocket(int port, int backlog);
+int initUdpSocket(int port);
 void randomString(int size, char *str);
 #endif

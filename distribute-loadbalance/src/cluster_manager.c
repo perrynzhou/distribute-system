@@ -14,8 +14,13 @@
 #include "hashkit.h"
 #include <stdio.h>
 #include <stdint.h>
-void clusterManagerInit(clusterManager *cm, const char *addr, const char *path)
+#define CLUSTER_MANAGER_NODES_CAP  (64)
+void clusterManagerInit(clusterManager *cm, const char *addr, int maxNodeSize,const char *path)
 {
+  if(maxNodeSize > CLUSTER_MANAGER_NODES_CAP) {
+    logError("over maxsize(%d) for nodes!!!",CLUSTER_MANAGER_NODES_CAP);
+    return;
+  }
   logInit(LOG_INFO_LEVEL, NULL);
   struct conf *f = confCreate(path, false);
   if (f != NULL)
@@ -34,18 +39,19 @@ void clusterManagerInit(clusterManager *cm, const char *addr, const char *path)
   uint64_t perToken = u32Max / n;
   uint64_t restToken = u32Max % n;
   uint64_t minToken = 0, maxToken = 0;
-  scheduleMeta *meta = (scheduleMeta *)calloc(n, sizeof(*meta));
-  cm->meta = meta;
+  //scheduleMeta *meta = (scheduleMeta *)calloc(n, sizeof(*meta));
+  cm->meta = (scheduleMeta **)calloc(n, sizeof(scheduleMeta *));
+
   for (int i = 0; i < n; i++)
   {
     struct confPool *pool = (struct confPool *)arrayGet(&f->pool, i);
-    const char *name = (const char *)pool->name.data;
-    const char *tags = (const char *)pool->tags.data;
-    const char *serviceAddr = (const char *)pool->addr.data;
-    int port = pool->port;
-    int backlog = pool->backlog;
-    int threads = pool->threads;
-    int timeout = pool->timeout;
+    const char *name = (const char *)pool->nodeName.data;
+    const char *tags = (const char *)pool->nodeTags.data;
+    const char *serviceAddr = (const char *)pool->nodeAddr.data;
+    int port = pool->nodePort;
+    int backlog = pool->nodeTcpBacklog;
+    int threads = pool->nodeWorkerThreads;
+    int timeout = pool->nodeTcpTimeout;
     serviceNode *sn = serviceNodeCreate(name, tags, threads);
     serviceNodeSetSocketInfo(sn, serviceAddr, port, timeout, backlog);
     serviceNodeSetClusterAddr(sn, addr);
@@ -60,9 +66,10 @@ void clusterManagerInit(clusterManager *cm, const char *addr, const char *path)
       minToken = maxToken+1;
       maxToken = u32Max - 1;
     }
-    scheduleMetaInit(&meta[i], minToken, maxToken, sn);
-    dictAdd(cm->dt, &meta[i].nodeName, &meta);
-    logInfo(LOG_INFO_LEVEL, "server info:name=%s,tags=%s,mintoken=%ld,maxtoken=%ld", (char *)meta[i].nodeName->data, (char *)meta[i].nodeTags->data, meta[i].minToken, meta[i].maxToken);
+    cm->meta[i] = (scheduleMeta *)calloc(1, sizeof(scheduleMeta));
+    scheduleMetaInit(cm->meta[i], minToken, maxToken, sn);
+    dictAdd(cm->dt, cm->meta[i]->nodeName, cm->meta[i]);
+    logInfo(LOG_INFO_LEVEL, "server info:name=%s,tags=%s,mintoken=%ld,maxtoken=%ld", (char *)cm->meta[i]->nodeName->data, (char *)cm->meta[i]->nodeTags->data, cm->meta[i]->minToken, cm->meta[i]->maxToken);
   }
   if (f != NULL)
   {

@@ -20,10 +20,15 @@ serviceNode *serviceNodeCreate(const char *name,const char *tags, int threads)
   serviceNodeInit(node, name,tags, threads);
   return node;
 }
+void serviceNodeSetClusterInfo(serviceNode *sn,const char *caddr,int port,int timeout) {
+    stringInitWithData(&sn->clusterAddr,caddr);
+    sn->clusterHeartbeatPort = port;
+    sn->reportStatusTimeout = timeout;
+}
 void serviceNodeSetSocketInfo(serviceNode *sn,const char *addr,int port,int timeout,int backlog){
- stringInitWithData(&sn->addr,addr);
+ stringInitWithData(&sn->nodeAddr,addr);
   int backlog_ = (backlog<SERVICE_NODE_MAX_BACKLOG)?SERVICE_NODE_MAX_BACKLOG:backlog;
-  sn->sock = initSocket(port, backlog_);
+  sn->sock = initTcpSocket(port, backlog_);
   sn->timeout = timeout;
 }
 inline void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr) {
@@ -31,8 +36,8 @@ inline void serviceNodeSetClusterAddr(serviceNode *sn,const char *clusterAddr) {
 }
 void serviceNodeInit(serviceNode *sn,const char *name, const char *tags,int threads)
 {
-  stringInitWithData(&sn->name,name);
-  stringInitWithData(&sn->tags,tags);
+  stringInitWithData(&sn->nodeName,name);
+  stringInitWithData(&sn->nodeTags,tags);
   sn->thds = (pthread_t *)calloc(threads, sizeof(pthread_t));
   sn->isStop = false;
 }
@@ -87,8 +92,8 @@ void serviceNodeDeinit(serviceNode *sn)
     close(sn->sock);
   }
   free(sn->thds);
-  stringDeinit(&sn->tags);
-  stringDeinit(&sn->name);
+  stringDeinit(&sn->nodeTags);
+  stringDeinit(&sn->nodeName);
   sn->thds = NULL;
 }
 void serviceNodeDestroy(serviceNode *sn)
