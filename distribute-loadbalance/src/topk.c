@@ -5,7 +5,6 @@
   > Created Time: 三  2/27 22:31:00 2019
  ************************************************************************/
 #include <stdio.h>
-typedef int (*objectCmp)(void *,void *);
 void quickSort(int *arr, int low, int high, int k)
 {
   int i = low, j = high;
