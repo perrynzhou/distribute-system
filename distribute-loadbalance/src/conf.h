@@ -44,6 +44,7 @@ struct confPool
     struct string nodeTags;        /*http version */
     struct string clusterAddr;
     int clusterHeartbeatPort;
+    int nodeWeight;
 };
 
 struct conf

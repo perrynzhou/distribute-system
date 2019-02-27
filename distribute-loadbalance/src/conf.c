@@ -19,6 +19,7 @@ static struct command conf_commands[] = {
     {string("node_worker_threads"), confSetNum, offsetof(struct confPool, nodeWorkerThreads)},
     {string("node_tcp_backlog"), confSetNum, offsetof(struct confPool, nodeTcpBacklog)},
     {string("node_tags"), confSetString, offsetof(struct confPool, nodeTags)},
+    {string("node_weight"), confSetNum, offsetof(struct confPool, nodeWeight)},
     {string("node_report_status_timeout"), confSetNum, offsetof(struct confPool, nodeReportStatusTimeout)},
     {string("cluster_addr"), confSetString, offsetof(struct confPool, clusterAddr)},
     {string("cluster_heartbeat_port"), confSetNum, offsetof(struct confPool, clusterHeartbeatPort)},
@@ -922,14 +923,14 @@ static int confPoolNameCmp(const void *t1, const void *t2)
 {
   const struct confPool *p1 = t1, *p2 = t2;
 
-  return stringCompare(&p1->name, &p2->name);
+  return stringCompare(&p1->nodeName, &p2->nodeName);
 }
 
 static int confPoolAddrCmp(const void *t1, const void *t2)
 {
   const struct confPool *p1 = t1, *p2 = t2;
 
-  return stringCompare(&p1->addr, &p2->addr);
+  return stringCompare(&p1->nodeAddr, &p2->nodeAddr);
 }
 
 static int confValidatePool(struct conf *cf, struct confPool *cp)
@@ -938,17 +939,17 @@ static int confValidatePool(struct conf *cf, struct confPool *cp)
 
   ASSERT(!stringEmpty(&cp->name));
 
-  if (cp->timeout == CONF_UNSET_NUM)
+  if (cp->nodeTcpTimeout == CONF_UNSET_NUM)
   {
     cp->nodeTcpTimeout = CONF_DEFAULT_TIMEOUT;
   }
-  if (cp->backlog == CONF_UNSET_NUM)
+  if (cp->nodeTcpBacklog == CONF_UNSET_NUM)
   {
     cp->nodeTcpBacklog = CONF_DEFAULT_LISTEN_BACKLOG;
   }
-  if (cp->port == CONF_UNSET_NUM)
+  if (cp->nodePort == CONF_UNSET_NUM)
   {
-    cp->port = CONF_DEFAULT_PORT;
+    cp->nodePort = CONF_DEFAULT_PORT;
   }
   return 0;
 }

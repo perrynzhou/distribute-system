@@ -19,6 +19,7 @@ typedef struct scheduleMeta
   struct string *nodeTags;
   uint64_t nodeConnectionCount;
   uint64_t nodeHandleFailedCount;
+  int nodeWeight;
   bool nodeStatus;
   serviceNode *node;
   pthread_mutex_t lock;
