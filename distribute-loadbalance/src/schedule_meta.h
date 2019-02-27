@@ -5,8 +5,8 @@
   > Created Time: 一  2/25 13:21:59 2019
  ************************************************************************/
 
-#ifndef _SCHEMETA_H
-#define _SCHEMETA_H
+#ifndef _SCHEDULE_META_H
+#define _SCHEDULE_META_H
 #include "service_node.h"
 #include <stdint.h>
 #include <stdbool.h>

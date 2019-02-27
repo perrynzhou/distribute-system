@@ -89,7 +89,7 @@ int main()
 {
   logInit(LOG_INFO_LEVEL, NULL);
   clusterManager cm;
-  clusterManagerInit(&cm, "127.0.0.1:10091", "./conf.yaml");
+  clusterManagerInit(&cm, "127.0.0.1:10091",16, "./conf.yaml");
   clusterManagerDeinit(&cm);
   return 0;
 }

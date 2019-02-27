@@ -34,8 +34,12 @@ static int confPoolInit(struct confPool *cp, struct string *name)
   cp->nodeTcpBacklog = CONF_UNSET_NUM;
   cp->nodeWorkerThreads = CONF_UNSET_NUM;
   cp->nodePort = CONF_UNSET_NUM;
+  cp->nodeReportStatusTimeout=CONF_UNSET_NUM;
+  cp->nodeWeight=CONF_UNSET_NUM;
+  cp->clusterHeartbeatPort=CONF_UNSET_NUM;
   stringInit(&cp->nodeTags);
   stringInit(&cp->nodeAddr);
+  stringInit(&cp->clusterAddr);
   status = stringDuplicate(&cp->nodeName, name);
   if (status != 0)
   {
