@@ -139,5 +139,17 @@ void *dictFind(dict *dt, const char *key)
   return NULL;
 }
 void dictDestroy(dict *dt){
-  
+  for(int i=0;i<dt->dictSlotSize;i++)
+  {
+    dictEntry *cur = dt->tables[i];
+    while(cur !=NULL) 
+    {
+      dictEntry *next = cur->next;
+      if(dt->destroycb!=NULL)
+      {
+        dt->destroycb(cur->value);
+      }
+      cur = next;
+    }
+  }
 }
