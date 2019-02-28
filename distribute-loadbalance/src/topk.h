@@ -10,5 +10,5 @@
 typedef int (*objectCmp)(void *a,void *b);
 typedef void (*objectSwap)(void *a,void *b);
 int objectQuickObject(void *arr,int esize,int l,int r,int k,objectCmp cmp,objectSwap swap);
-int findKthLargest(void *arr,int l,int r,int k);
+void *findKthLargest(void *arr,int esize,int l,int r,int k, objectCmp cmp, objectSwap swap);
 #endif

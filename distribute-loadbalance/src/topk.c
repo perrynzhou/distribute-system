@@ -62,3 +62,15 @@ int objectQuickObject(void *arr, int esize, int l, int r, int k, objectCmp cmp, 
   }
   return 0;
 }
+void *findKthLargest(void *arr, int esize, int l, int r, int k, objectCmp cmp, objectSwap swap)
+{
+  if (NULL == arr || l > r)
+  {
+    return NULL;
+  }
+  if (objectQuickObject(arr, esize, l, r, k, cmp, swap) == -1)
+  {
+    return NULL;
+  }
+  return (char *)&arr + ((k - 1) * esize);
+}
