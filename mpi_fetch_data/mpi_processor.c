@@ -30,8 +30,8 @@ int mpiProcessorInit(struct mpiProcessor *mp, char *remote_host, int port, int r
     return -1;
   }
   char buf[128] = {'\0'};
-  int avg = ((mp->token.end - mp->token.start) >>5);
-  size_t sz = (avg%32 ==0)?avg:avg+1;
+  int avg = ((mp->token.end - mp->token.start) >> 5);
+  size_t sz = (avg % 32 == 0) ? avg : avg + 1;
   if ((mp->rank >> 2) == 0)
   {
     mp->type = 0; //is writer
@@ -52,10 +52,11 @@ int mpiProcessorInit(struct mpiProcessor *mp, char *remote_host, int port, int r
 }
 void mpiProcessRun(struct mpiProcessor *mp)
 {
-  if(mp->type ==0) {
-
-  }else{
-
+  if (mp->type == 0)
+  {
+  }
+  else
+  {
   }
 }
 void mpiProcessorDeinit(struct mpiProcessor *p)
