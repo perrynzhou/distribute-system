@@ -30,7 +30,8 @@ int mpiProcessorInit(struct mpiProcessor *mp, char *remote_host, int port, int r
     return -1;
   }
   char buf[128] = {'\0'};
-  size_t sz = ((mp->token.end - mp->token.start) & (~7)) / 1024 / 1024;
+  int avg = ((mp->token.end - mp->token.start) >>5);
+  size_t sz = (avg%32 ==0)?avg:avg+1;
   if ((mp->rank >> 2) == 0)
   {
     mp->type = 0; //is writer
@@ -39,7 +40,7 @@ int mpiProcessorInit(struct mpiProcessor *mp, char *remote_host, int port, int r
   }
   else
   {
-    mp->store = (uint8_t *)calloc(sizeof(uint8_t), sz);
+    mp->store = (uint8_t *)calloc(sizeof(uint32_t), sz);
     mp->type = 1; //is reader
     sprintf(&buf, "%s", "reader");
   }
@@ -51,7 +52,11 @@ int mpiProcessorInit(struct mpiProcessor *mp, char *remote_host, int port, int r
 }
 void mpiProcessRun(struct mpiProcessor *mp)
 {
-  
+  if(mp->type ==0) {
+
+  }else{
+
+  }
 }
 void mpiProcessorDeinit(struct mpiProcessor *p)
 {
