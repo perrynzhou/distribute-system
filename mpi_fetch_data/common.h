@@ -14,7 +14,8 @@ struct tokenInfo
   uint64_t start;
   uint64_t end;
 };
-struct handShakeInfo {
-  
+struct requestBody {
+  int rank;
+  bool is_sync;
 };
 #endif
