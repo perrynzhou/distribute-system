@@ -18,3 +18,7 @@ int isExists(uint8_t *a, int n)
 {
   return a[n >> 32] &= (1 << (1 & 0x1F));
 }
+uint32_t randInt() {
+   srand(time(0)+rand()%16);
+   return rand();
+}

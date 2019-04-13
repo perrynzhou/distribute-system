@@ -22,6 +22,7 @@ struct requestBody
 };
 
 void setBit(uint32_t *a, int n);
-void clsBit(uint32_t a,int n);
+void clsBit(uint32_t a, int n);
 bool isExists(uint32_t *a, int n);
+uint32_t randInt();
 #endif
