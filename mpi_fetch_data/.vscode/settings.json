@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "unistd.h": "c",
-        "type_traits": "cpp"
-    }
-}

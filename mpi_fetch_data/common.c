@@ -10,20 +10,34 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+#define SHIFT 5
+#define MASK 0x1F
 static int urandom_fd = -1;
-void setBit(uint32_t *a, int n)
+void set_bit(uint32_t *a, int n)
 {
-  a[n >> 32] |= (1 << (1 & 0x1F));
+  a[n >> SHIFT] |= (1 << (1 & MASK));
 }
-void clsBit(uint32_t *a, int n)
+void cls_bit(uint32_t *a, int n)
 {
-  a[n >> 32] &= ~(1 << (n & 0x1F));
+  a[n >> SHIFT] &= ~(1 << (n & MASK));
 }
-int isExists(uint8_t *a, int n)
+int is_exists(uint32_t *a, int n)
 {
-  return a[n >> 32] &= (1 << (1 & 0x1F));
+  return a[n >> SHIFT] &= (1 << (1 & MASK));
 }
-uint32_t randInt()
+uint32_t rand_int()
 {
   unsigned int value;
   unsigned int *temp = &value;
@@ -34,3 +48,29 @@ uint32_t randInt()
   read(urandom_fd, temp, sizeof(uint32_t));
   return value;
 }
+int init_tcp_socket(const char *addr,int port, int backlog)
+{
+  int sockfd = -1;
+  int yes = 1;
+  if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ||
+      setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+  {
+    fprintf(stdout, "init socket failed:%s\n", strerror(errno));
+    return -1;
+  }
+  struct sockaddr_in srv;
+  memset(&srv, 0, sizeof(srv));
+
+  srv.sin_family = AF_INET;
+  srv.sin_addr.s_addr = inet_addr(addr);
+  srv.sin_port = htons(port);
+
+  if (bind(sockfd, (struct sockaddr *)&srv, sizeof(srv)) == -1 ||
+      listen(sockfd, backlog) == -1)
+  {
+    fprintf(stdout, "listen:%s\n", strerror(errno));
+    return -1;
+  }
+  return sockfd;
+}
+

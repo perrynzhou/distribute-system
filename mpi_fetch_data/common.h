@@ -1,28 +1,34 @@
 /*************************************************************************
-  > File Name: token_ring.h
-  > Author:perrynzhou 
-  > Mail:perrynzhou@gmail.com 
+  > File Name: common.h
+  > Author:perrynzhou
+  > Mail:perrynzhou@gmail.com
   > Created Time: Sat 13 Apr 2019 10:56:42 AM CST
  ************************************************************************/
 
-#ifndef _TOKEN_RING_H
-#define _TOKEN_RING_H
-#include <stdint.h>
+#ifndef _COMMON_H
+#define _COMMON_H
 #include <stdbool.h>
-struct tokenInfo
-{
+#include <stdint.h>
+struct token {
   int rank;
   uint64_t start;
   uint64_t end;
-};
-struct requestBody
-{
-  int rank;
   bool is_sync;
 };
-
-void setBit(uint32_t *a, int n);
-void clsBit(uint32_t a, int n);
-bool isExists(uint32_t *a, int n);
-uint32_t randInt();
+struct request {
+  int rank;
+  int data;
+  int flag;// -1  is unknow,0 is handshake;1 is write,2,is read,3 is close
+};
+enum reqest_op_type {
+     handshake_type=0,
+     read_type,
+     write_type,
+     close_type,
+};
+int init_tcp_socket(const char *addr,int port, int backlog);
+void set_bit(uint32_t *a, int n);
+void cls_bit(uint32_t *a, int n);
+int is_exists(uint32_t *a, int n);
+uint32_t rand_int();
 #endif

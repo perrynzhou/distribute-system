@@ -1,3 +1,8 @@
 all:
-	rm -rf test_tcp
-	g++ -DTEST -g -std=gnu++11  tcp_server.h tcp_server.cc -o test_tcp
+	rm -rf test_*
+	rm -rf *.gch
+	gcc  -g -std=gnu99 common.c tcp_store.h tcp_store.c  -o test_tcp_store
+	mpicc -g -o  test_mpi_process  common.c mpi_processor.h mpi_processor.c
+clean:
+	rm -rf test*
+	rm -rf *.gch
