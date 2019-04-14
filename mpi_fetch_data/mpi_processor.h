@@ -15,8 +15,10 @@ struct mpi_processor {
     uint8_t type; // 0 is handshake,1 is read,2 is wirite,3 is close;
     struct token token;
     uint32_t *store;
+    int  rank_size;
+    struct metric *mcs;
 };
-int mpi_processor_init(struct mpi_processor *mp,const char *remote_host,int port,int rank);
+int mpi_processor_init(struct mpi_processor *mp,const char *remote_host,int port,int rank,int rank_size);
 void mpi_processor_run(struct mpi_processor *mp);
 void mpi_processor_deinit(struct mpi_processor *p);
 #endif

@@ -19,7 +19,7 @@
 #include <signal.h>
 #include <unistd.h>
 int mpi_processor_init(struct mpi_processor *mp, const char *remote_host,
-                       int port, int rank) {
+                       int port, int rank,int rank_size) {
   int sfd = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in servaddr;
   memset(&servaddr, 0, sizeof(servaddr));
@@ -28,7 +28,7 @@ int mpi_processor_init(struct mpi_processor *mp, const char *remote_host,
   servaddr.sin_addr.s_addr = inet_addr(remote_host);
 
   mp->token.rank = rank;
-
+  mp->rank_size = rank_size;
   fprintf(stdout, "rank %d start connect %s:%d\n", mp->token.rank, remote_host,
           port);
   if (connect(sfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
@@ -65,17 +65,22 @@ int mpi_processor_init(struct mpi_processor *mp, const char *remote_host,
     sprintf((char *)&buf, "%s", "reader");
   }
   mp->serverfd = sfd;
-  fprintf(stdout, "mpi rank:%d,token.start=%ld,token.end:%ld,type:%s\n",
-          mp->token.rank, mp->token.start, mp->token.end, buf);
+  mp->mcs = (struct metric *)calloc(sizeof(struct metric),mp->rank_size);
+  for(int i=0;i<mp->rank_size;i++) {
+    mp->mcs[i].type = (i == rank)?mp->type:-1;
+    mp->mcs[i].count = 0;
+  }
+  fprintf(stdout, "mpi rank:%d,rank size:%d,token.start=%ld,token.end:%ld,type:%s\n",
+          mp->token.rank, mp->rank_size,mp->token.start, mp->token.end, buf);
   return 0;
 }
 void mpi_processor_run(struct mpi_processor *mp) {
   if (mp->type == 0) {
   } else {
+    
   }
 }
 void mpi_processor_deinit(struct mpi_processor *p) {
-  sleep(5);
   if (p->serverfd != -1) {
     close(p->serverfd);
   }
@@ -96,7 +101,7 @@ int main(int argc, char *argv[]) {
   struct mpi_processor mp;
   const char *remote_host = argv[1];
   int port = atoi(argv[2]);
-  mpi_processor_init(&mp, remote_host, port, rank);
+  mpi_processor_init(&mp, remote_host, port, rank,size);
   mpi_processor_deinit(&mp);
   MPI_Finalize();
 }

@@ -20,6 +20,10 @@ struct request {
   int data;
   int flag;// -1  is unknow,0 is handshake;1 is write,2,is read,3 is close
 };
+struct metric {
+    int type;
+    uint64_t count;
+};
 enum reqest_op_type {
      handshake_type=0,
      read_type,
