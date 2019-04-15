@@ -48,7 +48,7 @@ uint32_t rand_int()
   read(urandom_fd, temp, sizeof(uint32_t));
   return value;
 }
-int init_tcp_socket(const char *addr,int port, int backlog)
+int initTcpSocket(const char *addr,int port, int backlog)
 {
   int sockfd = -1;
   int yes = 1;

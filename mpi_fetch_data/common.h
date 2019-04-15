@@ -9,13 +9,13 @@
 #define _COMMON_H
 #include <stdbool.h>
 #include <stdint.h>
-struct token {
+struct Token {
   int rank;
   uint64_t start;
   uint64_t end;
   bool is_sync;
 };
-struct request {
+struct Request {
   int rank;
   int data;
   int flag;// -1  is unknow,0 is handshake;1 is write,2,is read,3 is close
@@ -30,7 +30,7 @@ enum reqest_op_type {
      write_type,
      close_type,
 };
-int init_tcp_socket(const char *addr,int port, int backlog);
+int initTcpSocket(const char *addr,int port, int backlog);
 void set_bit(uint32_t *a, int n);
 void cls_bit(uint32_t *a, int n);
 int is_exists(uint32_t *a, int n);
