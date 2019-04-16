@@ -7,32 +7,33 @@
 
 #ifndef _COMMON_H
 #define _COMMON_H
-#include <stdbool.h>
-#include <stdint.h>
+#include <cstdint>
 struct Token {
-  int rank;
-  uint64_t start;
-  uint64_t end;
-  bool is_sync;
+  int rank_;
+  uint64_t start_;
+  uint64_t end_;
+  int rank_size_;
+  bool is_sync_;
 };
-struct Request {
-  int rank;
-  int data;
-  int flag;// -1  is unknow,0 is handshake;1 is write,2,is read,3 is close
+struct Message {
+  int rank_;
+  uint64_t data_;
+  int flag_;// -1  is unknow,0 is handshake;1 is write,2,is read,3 is close
 };
-struct metric {
-    int type;
-    uint64_t count;
+struct Metric {
+    int type_;
+    uint64_t count_;
 };
-enum reqest_op_type {
-     handshake_type=0,
-     read_type,
-     write_type,
-     close_type,
+enum RequestOpType {
+     HandshakeType=0,
+     ReadType,
+     WriteType,
+     CloseType,
 };
 int initTcpSocket(const char *addr,int port, int backlog);
-void set_bit(uint32_t *a, int n);
-void cls_bit(uint32_t *a, int n);
-int is_exists(uint32_t *a, int n);
-uint32_t rand_int();
+int initTcpClient(const char *addr,int port);
+void setBit(uint32_t *a, int n);
+void clsBit(uint32_t *a, int n);
+int judgeBit(uint32_t *a, int n);
+uint32_t randInt();
 #endif

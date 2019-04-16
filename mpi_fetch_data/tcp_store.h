@@ -10,13 +10,17 @@
 #include <cstdint>
 #include <iostream>
 using namespace std;
-class TcpStore {
-  int backlog_ = 1024;
-  int bucket_;
+class TcpStore
+{
+  string addr_;
   int port_;
   int sockfd_;
+  int backlog_;
+  int bucket_;
   struct Token *tokens_;
-  uint32_t *store_;
+  uint64_t    *countor_;//record each node read/write times
+  //prepare resource befor run
+  int Prepare();
 
 public:
   TcpStore(const char *addr, int port, int bucket);

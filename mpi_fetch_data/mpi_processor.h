@@ -8,17 +8,24 @@
 #ifndef _MPI_PROCESSOR_H
 #define _MPI_PROCESSOR_H
 #include "common.h"
-#include <stdint.h>
+#include <string>
+using namespace std;
+class MpiProcessor
+{
+  string addr_;
+  int port_;
+  int serverfd_;
+  int *store_;
+  int rank_;
+  int rank_size_;
+  int type_;
+  Metric *metrics_;
+  int Prepare();
 
-struct mpi_processor {
-    int serverfd;
-    uint8_t type; // 0 is handshake,1 is read,2 is wirite,3 is close;
-    struct token token;
-    uint32_t *store;
-    int  rank_size;
-    struct metric *mcs;
+public:
+  MpiProcessor(const char *remote_host, int port, int rank, int rank_size);
+  void Run();
+  ~MpiProcessor();
+  Token token_;
 };
-int mpi_processor_init(struct mpi_processor *mp,const char *remote_host,int port,int rank,int rank_size);
-void mpi_processor_run(struct mpi_processor *mp);
-void mpi_processor_deinit(struct mpi_processor *p);
 #endif

@@ -1,8 +1,8 @@
 all:
 	rm -rf test_*
 	rm -rf *.gch
-	gcc  -g -std=gnu99 common.c tcp_store.h tcp_store.c  -o test_tcp_store
-	mpicc -g -std=gnu99  -o  test_mpi_process  common.c mpi_processor.h mpi_processor.c
+	g++  -g -std=gnu++11 common.cc tcp_store.h tcp_store.cc  -o test_tcp_store
+	mpicxx -g -std=gnu++11  -o  test_mpi_process  common.cc mpi_processor.h mpi_processor.cc
 clean:
 	rm -rf test*
 	rm -rf *.gch

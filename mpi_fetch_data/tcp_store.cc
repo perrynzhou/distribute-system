@@ -11,36 +11,58 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 TcpStore::TcpStore(const char *addr, int port, int bucket)
-    : port_(port), bucket_(bucket) {
-  sockfd_ = initTcpSocket(addr, port, backlog_);
-  uint64_t avg = UINT32_MAX / bucket;
-  tokens_ = new Token[bucket];
-  for (int i = 0; i < bucket; i++) {
-    tokens_[i].rank = i;
-    tokens_[i].start = i * avg;
-    tokens_[i].is_sync = false;
-    if (i != (bucket - 1)) {
-      tokens_[i].end = (i + 1) * avg - 1;
-    } else {
-      tokens_[i].end = UINT32_MAX;
-    }
-    fprintf(stdout, "rank :%d,start=%llu,end=%llu\n", i, tokens_[i].start,
-            tokens_[i].end);
-  }
+    : addr_(addr), port_(port), sockfd_(-1), backlog_(1024), bucket_(bucket), tokens_(nullptr)
+{
 }
-void TcpStore::Run() {
-  if (sockfd_ == -1) {
+
+int TcpStore::Prepare()
+{
+  sockfd_ = initTcpSocket(addr_.c_str(), port_, backlog_);
+  uint64_t avg = UINT32_MAX / bucket_;
+
+  tokens_ = new Token[bucket_];
+  countor_ = new uint64_t[bucket_];
+  if (tokens_ != nullptr)
+  {
+    for (int i = 0; i < bucket_; i++)
+    {
+      countor_[i] = 0;
+      tokens_[i].rank_ = i;
+      tokens_[i].start_ = i * avg;
+      tokens_[i].rank_size_ = bucket_;
+      tokens_[i].is_sync_ = false;
+      if (i != (bucket_ - 1))
+      {
+        tokens_[i].end_ = (i + 1) * avg - 1;
+      }
+      else
+      {
+        tokens_[i].end_ = UINT32_MAX;
+      }
+      fprintf(stdout, "rank :%d,start=%llu,end=%llu\n", i, tokens_[i].start_,
+              tokens_[i].end_);
+    }
+    return 0;
+  }
+  return -1;
+}
+void TcpStore::Run()
+{
+  if (Prepare() == -1)
+  {
     fprintf(stdout, "init socket failed\n");
     return;
   }
-  fprintf(stdout, "======start server at %d=======\n", port_);
+  fprintf(stdout, "======start server on %s:%d=======\n", addr_.c_str(), port_);
   fd_set main_set;
   fd_set read_set;
   fd_set write_set;
@@ -51,21 +73,27 @@ void TcpStore::Run() {
   int sfd = sockfd_;
   int fdmax = sfd;
 
-  for (;;) {
+  for (;;)
+  {
     read_set = main_set;
     write_set = main_set;
-    if (select(fdmax + 1, &read_set, &write_set, nullptr, nullptr) == -1) {
+    if (select(fdmax + 1, &read_set, &write_set, nullptr, nullptr) == -1)
+    {
       close(fdmax);
       break;
     }
-    for (int i = sfd; i <= fdmax; i++) {
-      if (FD_ISSET(i, &read_set)) {
-        if (i == sfd) {
+    for (int i = sfd; i <= fdmax; i++)
+    {
+      if (FD_ISSET(i, &read_set))
+      {
+        if (i == sfd)
+        {
           struct sockaddr_in cliaddr;
           int addrlen = sizeof(cliaddr);
           int clifd = accept(sockfd_, (struct sockaddr *)&cliaddr,
                              (socklen_t *)&addrlen);
-          if (clifd == -1) {
+          if (clifd == -1)
+          {
             fprintf(stdout, "accept new connection failed:%s\n",
                     strerror(errno));
             continue;
@@ -75,32 +103,71 @@ void TcpStore::Run() {
           fdmax = (fdmax < clifd) ? clifd : fdmax;
           fprintf(stdout, "accept new connection from %s \n",
                   inet_ntoa(cliaddr.sin_addr));
-        } else {
-          struct Request req;
+        }
+        else
+        {
+          struct Message req;
           memset(&req, 0, sizeof(req));
-          int nbytes = read(i, &req, sizeof(Request));
-          if (nbytes < 0) {
+          int nbytes = read(i, &req, sizeof(Message));
+          if (nbytes < 0)
+          {
             perror("read");
             FD_CLR(i, &main_set);
             continue;
           }
-          switch (req.flag) {
-          case handshake_type:
-            if (!tokens_[req.rank].is_sync && req.flag == handshake_type) {
-              if ((nbytes = write(i, &tokens_[req.rank], sizeof(Token))) < 0) {
+
+          switch (req.flag_)
+          {
+          case HandshakeType:
+            if (!tokens_[req.rank_].is_sync_ && req.flag_ == HandshakeType)
+            {
+
+              if ((nbytes = write(i, &tokens_[req.rank_], sizeof(Token))) < 0)
+              {
                 fprintf(stdout, "fd:%d,errno:%d,err:%s\n", i, errno,
                         strerror(errno));
                 FD_CLR(i, &main_set);
                 continue;
               }
-              tokens_[req.rank].is_sync = true;
+              tokens_[req.rank_].is_sync_ = true;
             }
             break;
-          case read_type:
+          case ReadType:
+            if (tokens_[req.rank_].is_sync_ && req.flag_ == ReadType)
+            {
+              
+              uint64_t count = rand()%10;
+              uint64_t base = tokens_[req.rank_].end_-tokens_[req.rank_].start_;
+              for(uint64_t i=0;i<count;i++) {
+                 Message msg;
+                 msg.rank_ = req.rank_;
+                 msg.data_ =  rand()%64;
+                 msg.flag_ = ReadType;
+                 int nbytes = write(i,&msg,sizeof(Message));
+                 fprintf(stdout,"send:rank:%d,data:%llu,flag:%d\n",msg.rank_,msg.data_,msg.flag_);
+              }
+                 Message msg;
+                 msg.flag_ = CloseType;
+                 int nbytes = write(i,&msg,sizeof(Message));
+                 fprintf(stdout,"write:%d\n",nbytes);
+                 fprintf(stdout,"**total send:%llu for rank %d**\n",count,req.rank_);
+            }
             break;
-          case write_type:
+          case WriteType:
+            if (tokens_[req.rank_].is_sync_ && req.flag_ == WriteType)
+            {
+             uint64_t count = rand()%100;
+              fprintf(stdout,"**total send:%llu for rank %d**\n",count,req.rank_);
+            }
             break;
-          case close_type:
+          case CloseType:
+            if (tokens_[req.rank_].is_sync_ && req.flag_ == CloseType)
+            {
+              fprintf(stdout, "rank %d ops:%llu   leave!\n", req.rank_, countor_[req.rank_]);
+              FD_CLR(i, &main_set);
+            }
+            break;
+          default:
             break;
           }
         }
@@ -109,16 +176,16 @@ void TcpStore::Run() {
   }
 }
 
-TcpStore::~TcpStore() {
+TcpStore::~TcpStore()
+{
 
-  if (sockfd_ != -1) {
+  if (sockfd_ != -1)
+  {
     close(sockfd_);
   }
-  if (store_ != NULL) {
-    delete[] store_;
-  }
 }
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   TcpStore ts("127.0.0.1", atoi(argv[1]), atoi(argv[2]));
   ts.Run();
   return 0;
