@@ -12,7 +12,7 @@ struct Token {
   int rank_;
   uint64_t start_;
   uint64_t end_;
-  int rank_size_;
+  int bucket_;
   bool is_sync_;
 };
 struct Message {
