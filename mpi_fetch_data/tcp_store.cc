@@ -102,7 +102,6 @@ void TcpStore::Run()
                     if (nbytes <= 0) {
                         continue;
                     }
-                    fprintf(stdout, "-----flag:%d\n", req.flag_);
                     switch (req.flag_) {
                     case HandshakeType:
                         if (!tokens_[req.rank_].is_sync_ && req.flag_ == HandshakeType) {
