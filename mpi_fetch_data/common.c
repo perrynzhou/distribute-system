@@ -5,11 +5,11 @@
   > Created Time: Sat 13 Apr 2019 05:11:33 PM CST
  ************************************************************************/
 #include "common.h"
-#include <cstdio>
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -23,19 +23,19 @@
 #define SHIFT 5
 #define MASK 0x1F
 static int urandom_fd = -1;
-void setBit(uint32_t *a, int n)
+void set_bit(uint32_t *a, int n)
 {
   a[n >> SHIFT] |= (1 << (1 & MASK));
 }
-void clsBit(uint32_t *a, int n)
+void cls_bit(uint32_t *a, int n)
 {
   a[n >> SHIFT] &= ~(1 << (n & MASK));
 }
-int judgeBit(uint32_t *a, int n)
+int judge_bit(uint32_t *a, int n)
 {
   return a[n >> SHIFT] &= (1 << (1 & MASK));
 }
-uint32_t randInt()
+uint32_t rand_int()
 {
   unsigned int value;
   unsigned int *temp = &value;
@@ -46,7 +46,7 @@ uint32_t randInt()
   read(urandom_fd, temp, sizeof(uint32_t));
   return value;
 }
-int initTcpSocket(const char *addr, int port, int backlog)
+int init_tcp_socket(const char *addr, int port, int backlog)
 {
   int sockfd = -1;
   int yes = 1;
@@ -71,7 +71,7 @@ int initTcpSocket(const char *addr, int port, int backlog)
   }
   return sockfd;
 }
-int initTcpClient(const char *addr, int port)
+int init_tcp_client(const char *addr, int port)
 {
   int sfd = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in servaddr;

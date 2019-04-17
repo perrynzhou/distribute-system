@@ -7,24 +7,16 @@
 
 #ifndef _TCP_STORE_H
 #define _TCP_STORE_H
-#include <cstdint>
-#include <iostream>
-using namespace std;
-class TcpStore
+#include "common.h"
+#include <stdint.h>
+typedef struct
 {
-  string addr_;
-  int port_;
-  int sockfd_;
-  int backlog_;
-  int bucket_;
-  struct Token *tokens_;
-  uint64_t    *countor_;//record each node read/write times
-  //prepare resource befor run
-  int Prepare();
-
-public:
-  TcpStore(const char *addr, int port, int bucket);
-  void Run();
-  ~TcpStore();
-};
+   int sockfd;
+   int bucket;
+   token_t *tokens;
+   metric_t *metrics;
+} tcp_store_t;
+int tcp_store_init(tcp_store_t *ts, const char *addr, int port, int backlog, int bucket);
+int tcp_store_run(tcp_store_t *ts);
+void tcp_store_deinit(tcp_store_t *ts);
 #endif
