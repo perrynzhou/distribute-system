@@ -49,7 +49,7 @@ int tcp_store_init(tcp_store_t *ts, const char *addr, int port, int backlog, int
         {
             tokens[i].end = UINT32_MAX;
         }
-        fprintf(stdout, "rank :%d,start=%llu,end=%llu\n", i, tokens[i].start,tokens[i].end);
+        fprintf(stdout, "rank :%d,start=%llu,end=%llu\n", i, tokens[i].start, tokens[i].end);
     }
     ts->sockfd = sockfd;
     ts->tokens = tokens;
@@ -71,8 +71,8 @@ int tcp_store_run(tcp_store_t *ts)
     FD_ZERO(&main_set);
     FD_ZERO(&read_set);
     FD_ZERO(&write_set);
-    FD_SET(ts->sockfd , &main_set);
-    int sfd = ts->sockfd ;
+    FD_SET(ts->sockfd, &main_set);
+    int sfd = ts->sockfd;
     int fdmax = sfd;
     for (;;)
     {
@@ -91,7 +91,7 @@ int tcp_store_run(tcp_store_t *ts)
                 {
                     struct sockaddr_in cliaddr;
                     int addrlen = sizeof(cliaddr);
-                    int clifd = accept(ts->sockfd , (struct sockaddr *)&cliaddr,
+                    int clifd = accept(ts->sockfd, (struct sockaddr *)&cliaddr,
                                        (socklen_t *)&addrlen);
                     if (clifd == -1)
                     {
@@ -160,12 +160,17 @@ int tcp_store_run(tcp_store_t *ts)
                     case close_type:
                         if (ts->tokens[req.rank].is_sync && req.flag == close_type)
                         {
-                            fprintf(stdout, "rank %d ops:%llu   leave!\n", req.rank,0);
+                            fprintf(stdout, "rank %d ops:%llu   leave!\n", req.rank, 0);
                             FD_CLR(i, &main_set);
                         }
                         break;
                     default:
                         break;
+                    }
+
+                    if (ts->metrics[req.rank].count > 0)
+                    {
+                        fprintf(stdout, "ran [%d] ops:%llu\n", req.rank, ts->metrics[req.rank].count);
                     }
                 }
             }
@@ -181,17 +186,19 @@ void tcp_store_deinit(tcp_store_t *ts)
     {
         close(ts->sockfd);
     }
-    if(ts->tokens !=NULL) {
+    if (ts->tokens != NULL)
+    {
         free(ts->tokens);
     }
-    if(ts->metrics !=NULL) {
+    if (ts->metrics != NULL)
+    {
         free(ts->metrics);
     }
 }
 int main(int argc, char *argv[])
 {
     tcp_store_t ts;
-    tcp_store_init(&ts,"127.0.0.1",atoi(argv[1]),1024, atoi(argv[2]));
+    tcp_store_init(&ts, "127.0.0.1", atoi(argv[1]), 1024, atoi(argv[2]));
     tcp_store_run(&ts);
     tcp_store_deinit(&ts);
     return 0;
