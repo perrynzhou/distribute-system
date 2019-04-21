@@ -9,6 +9,7 @@
 #define _MPI_PROCESSOR_H
 #include "common.h"
 #include <stdint.h>
+#include <pthread.h>
 typedef struct {
    int sockfd;
    int  rank;
@@ -17,6 +18,7 @@ typedef struct {
    uint64_t op_count;
    token_t  token;
    metric_t *metrics;
+   mpi_thread_t  *threads;
 }mpi_processor_t;
 int mpi_processor_init(mpi_processor_t *mp,const char *addr,int port,int rank,int rank_size,int type);
 void mpi_processor_run(mpi_processor_t *mp);

@@ -52,6 +52,7 @@ int mpi_processor_init(mpi_processor_t *mp, const char *addr, int port, int rank
     mp->rank_size = rank_size;
     mp->rank = rank;
     mp->op_count = op_count;
+
     char buf[128] = {'\0'};
     int avg = ((mp->token.end - mp->token.start) >> 5);
     size_t sz = (avg % 32 == 0) ? avg : avg + 1;
@@ -59,11 +60,14 @@ int mpi_processor_init(mpi_processor_t *mp, const char *addr, int port, int rank
     {
         mp->type = read_type; // is reader
         sprintf((char *)&buf, "%s", "writer");
+        mp->thd = NULL;
     }
     else
     {
         mp->type = write_type; // is writer
         sprintf((char *)&buf, "%s", "reader");
+        mp->thd = (pthread_t *)calloc(sizeof(pthread_t), ts->bucket);
+        assert(mp->thd != NULL);
     }
     mp->metrics = (metric_t *)calloc(sizeof(metric_t), rank_size);
     for (int i = 0; i < mp->rank_size; i++)
@@ -108,7 +112,7 @@ void mpi_processor_run(mpi_processor_t *mp)
         else
         {
             msg.flag = write_type;
-            msg.data = base + rand() % base;
+            msg.data = UINT32_MAX % rand();
             nbytes = write(mp->sockfd, &msg, sizeof(message_t));
         }
     }
@@ -122,6 +126,10 @@ void mpi__processor_deinit(mpi_processor_t *mp)
     if (mp->metrics != NULL)
     {
         free(mp->metrics);
+    }
+    if (mp->thd != NULL)
+    {
+        free(mp->thd);
     }
 }
 int main(int argc, char *argv[])

@@ -32,6 +32,9 @@ int tcp_store_init(tcp_store_t *ts, const char *addr, int port, int backlog, int
 
     token_t *tokens = (token_t *)calloc(bucket, sizeof(token_t));
     metric_t *metrics = (metric_t *)calloc(bucket, sizeof(metric_t));
+    size_t cache_sz = UINT32_MAX>>5;
+    int *cache  = (int *)calloc(cache_sz,szieof(int));
+    assert(cache !=NULL);
     assert(tokens != NULL);
     assert(metrics != NULL);
 
@@ -55,6 +58,7 @@ int tcp_store_init(tcp_store_t *ts, const char *addr, int port, int backlog, int
     ts->tokens = tokens;
     ts->bucket = bucket;
     ts->metrics = metrics;
+    ts->cache = cache;
     fprintf(stdout, "======start server on %s:%d=======\n", addr, port);
     return 0;
 }

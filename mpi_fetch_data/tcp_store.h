@@ -15,6 +15,7 @@ typedef struct
    int bucket;
    token_t *tokens;
    metric_t *metrics;
+   int    *cache;
 } tcp_store_t;
 int tcp_store_init(tcp_store_t *ts, const char *addr, int port, int backlog, int bucket);
 int tcp_store_run(tcp_store_t *ts);

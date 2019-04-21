@@ -9,6 +9,7 @@
 #define _COMMON_H
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
 typedef struct
 {
   int rank;
@@ -28,6 +29,10 @@ typedef struct
   int rank;
   uint64_t count;
 } metric_t;
+typedef struct {
+  pthread_t thread;
+  int id;
+}mpi_thread_t;
 typedef enum
 {
   handshake_type = 0,
