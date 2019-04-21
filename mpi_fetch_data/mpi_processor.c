@@ -23,6 +23,7 @@
 
 int mpi_processor_init(mpi_processor_t *mp, const char *addr, int port, int rank, int rank_size, int op_count)
 {
+
     int sfd = init_tcp_client(addr, port);
     if (sfd == -1)
     {
@@ -52,11 +53,11 @@ int mpi_processor_init(mpi_processor_t *mp, const char *addr, int port, int rank
     mp->rank_size = rank_size;
     mp->rank = rank;
     mp->op_count = op_count;
-
+    mp->type = type;
     char buf[128] = {'\0'};
     int avg = ((mp->token.end - mp->token.start) >> 5);
     size_t sz = (avg % 32 == 0) ? avg : avg + 1;
-    if (rank < mp->token.bucket)
+    if (mp->rank < mp->bucket)
     {
         mp->type = read_type; // is reader
         sprintf((char *)&buf, "%s", "writer");
@@ -79,6 +80,37 @@ int mpi_processor_init(mpi_processor_t *mp, const char *addr, int port, int rank
     fprintf(stdout, "[handeshake]:mpi rank:%d,rank size:%d,token.start=%ld,token.end:%ld,bucket:%d,type:%s\n",
             mp->token.rank, rank_size, mp->token.start, mp->token.end, mp->token.bucket, buf);
     return 0;
+}
+static void *mpi_processor_write_cb(void *arg)
+{
+    mpi_processor_t *mp = (mpi_processor_t *)arg;
+
+    uint64_t avg = UINT32_MAX / p->bucket;
+    int count = 1024 * mp->op_count;
+    uint64_t min = 0, max = 0;
+    for (int i = 0; i < count; i++)
+    {
+        uint64_t value = (i == (mp->op_count - 1)) ? (UINT32_MAX - i * avg) : (i * avg + rand_int());
+        if (i == 0)
+        {
+            min = max = value;
+        }
+        else
+        {
+            min = (min < value) ? value : min;
+            max = (max < value) ? value : max;
+        }
+        message_t msg;
+        msg.flag = write_type;
+        msg.data = value;
+        int nw = write(m->sockfd, &msg, sizeof(message_t));
+        if (nw < 0 || nw != sizeof(message_t))
+        {
+            fperror("write");
+        }
+    }
+    fprintf(stdout, "rank %d write %d to cache\n", pthread_self(), count);
+    return NULL;
 }
 void mpi_processor_run(mpi_processor_t *mp)
 {
@@ -111,9 +143,14 @@ void mpi_processor_run(mpi_processor_t *mp)
         }
         else
         {
-            msg.flag = write_type;
-            msg.data = UINT32_MAX % rand();
-            nbytes = write(mp->sockfd, &msg, sizeof(message_t));
+            for (int i = 0; i < mp->bucket; i++)
+            {
+                pthread_create(&mp->threads[i], NULL, (void *)&mpi_processor_write_cb, mp);
+            }
+            for (int i = 0; i < mp->bucket; i++)
+            {
+                pthread_join(mp->threads[i], NULL);
+            }
         }
     }
 }
@@ -144,8 +181,9 @@ int main(int argc, char *argv[])
     const char *addr = argv[1];
     int port = atoi(argv[2]);
     int count = atoi(argv[3]);
+    int type = atoi(argv[4]);
     mpi_processor_t mp;
-    mpi_processor_init(&mp, addr, port, rank, size, count);
+    mpi_processor_init(&mp, addr, port, rank, size, count, type);
     mpi_processor_run(&mp);
     mpi__processor_deinit(&mp);
     MPI_Finalize();

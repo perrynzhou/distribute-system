@@ -20,7 +20,7 @@ typedef struct {
    metric_t *metrics;
    mpi_thread_t  *threads;
 }mpi_processor_t;
-int mpi_processor_init(mpi_processor_t *mp,const char *addr,int port,int rank,int rank_size,int type);
+int mpi_processor_init(mpi_processor_t *mp,const char *addr,int port,int rank,int rank_size,int op_count);
 void mpi_processor_run(mpi_processor_t *mp);
 void mpi__processor_deinit(mpi_processor_t *mp);
 #endif
